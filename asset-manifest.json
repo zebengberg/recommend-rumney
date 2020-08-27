@@ -1,0 +1,23 @@
+{
+  "files": {
+    "main.css": "/recommend-rumney/static/css/main.5f361e03.chunk.css",
+    "main.js": "/recommend-rumney/static/js/main.aa06a25c.chunk.js",
+    "main.js.map": "/recommend-rumney/static/js/main.aa06a25c.chunk.js.map",
+    "runtime-main.js": "/recommend-rumney/static/js/runtime-main.8b1955d8.js",
+    "runtime-main.js.map": "/recommend-rumney/static/js/runtime-main.8b1955d8.js.map",
+    "static/js/2.8e978664.chunk.js": "/recommend-rumney/static/js/2.8e978664.chunk.js",
+    "static/js/2.8e978664.chunk.js.map": "/recommend-rumney/static/js/2.8e978664.chunk.js.map",
+    "index.html": "/recommend-rumney/index.html",
+    "precache-manifest.c2164ff1ba8081c431a5603b0f8502ef.js": "/recommend-rumney/precache-manifest.c2164ff1ba8081c431a5603b0f8502ef.js",
+    "service-worker.js": "/recommend-rumney/service-worker.js",
+    "static/css/main.5f361e03.chunk.css.map": "/recommend-rumney/static/css/main.5f361e03.chunk.css.map",
+    "static/js/2.8e978664.chunk.js.LICENSE.txt": "/recommend-rumney/static/js/2.8e978664.chunk.js.LICENSE.txt",
+    "static/media/logo.svg": "/recommend-rumney/static/media/logo.5d5d9eef.svg"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.8b1955d8.js",
+    "static/js/2.8e978664.chunk.js",
+    "static/css/main.5f361e03.chunk.css",
+    "static/js/main.aa06a25c.chunk.js"
+  ]
+}

@@ -1,3 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
+import Autocomplete from "./Autocomplete";
+import routes from "../assets/routes.json";
 
-export default () => <h1>hello world</h1>;
+export default () => {
+  return <Autocomplete items={routes} />;
+};

@@ -1,16 +1,22 @@
 import React from "react";
 import { Jumbotron, Button, Card } from "react-bootstrap";
 import Link from "react-router-dom/Link";
-import users from "../data/users.json";
 import Autocomplete from "./Autocomplete";
+import users from "../assets/users.json";
+import fly from "../assets/fly.jpg";
 
 export default () => (
   <>
-    <Jumbotron>
+    <Jumbotron
+      style={{
+        backgroundSize: "cover",
+        backgroundImage: `linear-gradient(to top, rgba(255,255,255,0), rgba(255,255,255,0.7)), url(${fly})`,
+      }}
+    >
       <h1>recommend rumney!</h1>
       <p>
-        You've already sent those boring jug hauls and painful slabs. Want a
-        custom recommendation for an amazing route you haven't yet tried??
+        Want a custom recommendation for an amazing route you haven't yet
+        tried??
       </p>
       <p>
         <Link to="/algorithm">
@@ -19,13 +25,12 @@ export default () => (
       </p>
     </Jumbotron>
 
-    <div style={{ padding: "2rem 1rem", "margin-bottom": "2rem" }}>
+    <div style={{ padding: "2rem 1rem", marginBottom: "2rem" }}>
       <Card style={{ padding: "2rem 1rem", "margin-bottom": "2rem" }}>
         <Card.Title>Already a contributor?</Card.Title>
         <Card.Body>Search for your Mountain Project username below.</Card.Body>
         <Autocomplete items={users} />
       </Card>
-
       <Card style={{ padding: "2rem 1rem", "margin-bottom": "2rem" }}>
         <Card.Title>Build your own custom preferences.</Card.Title>
         <Link to="/preferences">

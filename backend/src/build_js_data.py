@@ -10,7 +10,8 @@ def build_user_data():
   g = user_df.groupby(by='user', as_index=False)
   counts = g.count().sort_values(by='route', ascending=False)
   counts = counts.rename(columns={'route': 'n_votes'})
-  counts.to_json('../data/users.json', orient='records')
+  users_json_path = '../../src/data/users.json'
+  counts.to_json(users_json_path, orient='records')
 
 
 build_user_data()

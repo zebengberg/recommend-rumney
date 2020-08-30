@@ -6,37 +6,40 @@ export default (props) => {
   return (
     <Autocomplete
       items={props.items}
-      getItemValue={(item) => item[props.item_key]}
+      getItemValue={(item) => item[props.itemKey]}
       renderItem={(item, isHighlighted) => (
         <div
           style={{ background: isHighlighted ? "lightgray" : "white" }}
-          key={item[props.item_key]}
+          key={item[props.itemKey]}
         >
-          {item[props.item_key]}
+          {item[props.itemKey]}
         </div>
       )}
       value={value}
       wrapperStyle={{ position: "relative", display: "inline-block" }}
       shouldItemRender={(item, value) =>
-        item[props.item_key].toLowerCase().indexOf(value.toLowerCase()) !== -1
+        item[props.itemKey].toLowerCase().indexOf(value.toLowerCase()) !== -1
       }
       // See sortStates documentation here:
       // https://github.com/reactjs/react-autocomplete/blob/master/lib/utils.js
       sortItems={(a, b, v) => {
-        const aLower = a[props.item_key].toLowerCase();
-        const bLower = b[props.item_key].toLowerCase();
+        const aLower = a[props.itemKey].toLowerCase();
+        const bLower = b[props.itemKey].toLowerCase();
         const vLower = v.toLowerCase();
         const queryPosA = aLower.indexOf(vLower);
         const queryPosB = bLower.indexOf(vLower);
         if (queryPosA !== queryPosB) {
           return queryPosA - queryPosB;
         }
-        return aLower[props.sort_key] < bLower[props.sort_key] ? -1 : 1;
+        return aLower[props.sortKey] < bLower[props.sortKey] ? -1 : 1;
       }}
       onChange={(_, v) => setValue(v)}
-      onSelect={(v) => {
-        setValue(v);
-        props.setSelected(v);
+      onSelect={(_, item) => {
+        setValue(item[props.itemKey]);
+        props.setSelected({
+          item: item[props.itemKey],
+          measure: item[props.sortKey],
+        });
       }}
       menuStyle={{
         borderRadius: "3px",

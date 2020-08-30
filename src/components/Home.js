@@ -1,13 +1,12 @@
 import React, { useState } from "react";
-import { Jumbotron, Button, Card } from "react-bootstrap";
+import { Jumbotron, Button, Row, Container } from "react-bootstrap";
 import Link from "react-router-dom/Link";
 import Autocomplete from "./Autocomplete";
 import users from "../assets/users.json";
 import fly from "../assets/fly.jpg";
 
 export default () => {
-  const [selectedUser, setSelectedUser] = useState(null);
-  console.log(selectedUser);
+  const [user, setUser] = useState({});
   return (
     <>
       <Jumbotron
@@ -28,34 +27,43 @@ export default () => {
         </p>
       </Jumbotron>
 
-      <div style={{ padding: "2rem 1rem", marginBottom: "2rem" }}>
-        <Card style={{ padding: "2rem 1rem", marginBottom: "2rem" }}>
-          <Card.Title>Already a contributor?</Card.Title>
-          <Card.Body>
-            Search for your Mountain Project username below.
-          </Card.Body>
-          <Autocomplete
-            items={users}
-            item_key={"user"}
-            sort_key={"n_votes"}
-            selected={selectedUser}
-            setSelected={setSelectedUser}
-          />
-
+      <Container>
+        <h3>Already a contributor?</h3>
+        <p>Search for your Mountain Project username below.</p>
+        <Autocomplete
+          items={users}
+          itemKey={"user"}
+          sortKey={"n_votes"}
+          setSelected={setUser}
+        />
+        {"item" in user && (
           <p>
-            Wow, congratulations {selectedUser}! Have this display iff we get
-            user. Print number of contribs. Take to next page.
+            Wow, congratulations <b>{user.item}</b>! You have given star ratings
+            to <b>{user.measure}</b> routes in the Mountain Project Rumney
+            database. You are {adjective(user.measure)} user.
           </p>
-        </Card>
-        <Card style={{ padding: "2rem 1rem", marginBottom: "2rem" }}>
-          <Card.Title>Build your own custom preferences.</Card.Title>
+        )}
+
+        <Row style={{ marginTop: "5rem" }}>
           <Link to="/preferences">
-            <Button size="lg" style={{ float: "right" }}>
-              Build Route Preferences
-            </Button>
+            <Button size="lg">Build your own custom preferences.</Button>
           </Link>
-        </Card>
-      </div>
+        </Row>
+      </Container>
     </>
   );
+};
+
+const adjective = (measure) => {
+  if (measure > 100) {
+    return "an exceptional";
+  }
+  if (measure > 20) {
+    return "a distinguished";
+  }
+  if (measure > 5) {
+    return "a capable";
+  } else {
+    return "an uncommitted";
+  }
 };

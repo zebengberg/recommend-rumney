@@ -1,7 +1,15 @@
-import React from "react";
-import Autocomplete from "./Autocomplete";
-import routes from "../assets/routes.json";
+import React, { useState } from "react";
+import { Container, Row, Col } from "react-bootstrap";
+import RankedRoute from "./RankedRoute";
 
 export default () => {
-  return <Autocomplete items={routes} />;
+  const [preferences, setPreferences] = useState({});
+  return (
+    <Container className="p-3">
+      <h1>Preferences</h1>
+      <Row>
+        <RankedRoute />
+      </Row>
+    </Container>
+  );
 };

@@ -1,12 +1,13 @@
 import React, { useState } from "react";
-import { Jumbotron, Button, Row, Container } from "react-bootstrap";
+import { Jumbotron, Button, Row, Container, Col } from "react-bootstrap";
 import Link from "react-router-dom/Link";
 import Autocomplete from "./Autocomplete";
 import users from "../assets/users.json";
 import fly from "../assets/fly.jpg";
 
 export default () => {
-  const [user, setUser] = useState({});
+  const [user, setUser] = useState("");
+  const [numVotes, setNumVotes] = useState(null);
   return (
     <>
       <Jumbotron
@@ -31,23 +32,34 @@ export default () => {
         <h3>Already a contributor?</h3>
         <p>Search for your Mountain Project username below.</p>
         <Autocomplete
+          value={user}
+          setValue={setUser}
+          setMeasure={setNumVotes}
           items={users}
           itemKey={"user"}
           sortKey={"n_votes"}
-          setSelected={setUser}
         />
-        {"item" in user && (
+        {numVotes !== null && (
           <p>
-            Wow, congratulations <b>{user.item}</b>! You have given star ratings
-            to <b>{user.measure}</b> routes in the Mountain Project Rumney
-            database. You are {adjective(user.measure)} user.
+            Wow, congratulations <b>{user}</b>! You have given star ratings to{" "}
+            <b>{numVotes}</b> routes in the Mountain Project Rumney database.
+            You are {adjective(numVotes)} user.
           </p>
         )}
 
         <Row style={{ marginTop: "5rem" }}>
-          <Link to="/preferences">
-            <Button size="lg">Build your own custom preferences.</Button>
-          </Link>
+          <Col>
+            <Link to="/preferences">
+              <Button size="lg">Build your own custom preferences</Button>
+            </Link>
+          </Col>
+          {numVotes !== null && (
+            <Col>
+              <Link to="/implement-this">
+                <Button size="lg">Use your existing ratings</Button>
+              </Link>
+            </Col>
+          )}
         </Row>
       </Container>
     </>

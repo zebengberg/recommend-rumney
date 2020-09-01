@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import Autocomplete from "react-autocomplete";
 
 export default (props) => (

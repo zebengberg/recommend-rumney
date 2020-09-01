@@ -22,7 +22,7 @@ export default () => {
           tried??
         </p>
         <p>
-          <Link to="/algorithm">
+          <Link to="/about">
             <Button variant="info">How it works</Button>
           </Link>
         </p>

@@ -6,6 +6,7 @@ df = pd.read_csv(stars_file_path)
 
 def build_user_data():
   """Export list of MP users contributing to Rumney to file."""
+  # TODO: get additional data on each user such as age, sex, ticks, .... ?
   user_df = df[['route', 'user']]
   g = user_df.groupby(by='user', as_index=False)
   counts = g.count()
@@ -32,6 +33,18 @@ def build_route_data():
   # exporting
   routes_json_path = '../../src/assets/routes.json'
   stats.to_json(routes_json_path, orient='records')
+
+def build_route_best_preferences_data():
+  pass
+
+def build_user_star_ratings_data():
+  # normalize it?
+  pass
+
+
+
+
+
 
 
 if __name__ == '__main__':

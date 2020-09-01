@@ -62,9 +62,12 @@ export default () => {
         ))}
       </Row>
       <ConditionalLink
-        to="/results"
+        to={{
+          pathname: "/results",
+          state: { preferences: getValidAndDistinctEntries(routeList) },
+        }}
         condition={
-          getValidAndDistinctEntries(routeList).length >
+          getValidAndDistinctEntries(routeList).length >=
           minDistinctRoutesRequired
         }
       >

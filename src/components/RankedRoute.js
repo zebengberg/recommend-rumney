@@ -1,42 +1,38 @@
-import React, { useState } from "react";
+import React from "react";
 import { Row, Col } from "react-bootstrap";
 import Autocomplete from "./Autocomplete";
 import Stars from "./Stars";
 import routes from "../assets/routes.json";
 import { Button } from "react-bootstrap";
 
-export default (props) => {
-  const [route, setRoute] = useState("");
-  const [rating, setRating] = useState(0);
+export default (props) => (
+  <Row>
+    <Col>
+      <Autocomplete
+        value={props.route}
+        setValue={(newRoute) => props.setRoute(newRoute, props.index)}
+        items={routes}
+        itemKey={"route"}
+        sortKey={"n_votes"}
+        inputProps={{ style: { width: "20rem" } }}
+      />
+    </Col>
 
-  return (
-    <Row>
-      <Col>
-        <Autocomplete
-          value={route}
-          setValue={setRoute}
-          items={routes}
-          itemKey={"route"}
-          sortKey={"n_votes"}
-          inputProps={{ style: { width: "20rem" } }}
-        />
-      </Col>
-
-      <Col>
-        <Stars rating={rating} setRating={setRating} />
-      </Col>
-      <Col>
-        <Button
-          onClick={(e) => {
-            console.log(e);
-            setRoute("");
-            console.log("clicked clear");
-            setRating(0);
-          }}
-        >
-          clear
-        </Button>
-      </Col>
-    </Row>
-  );
-};
+    <Col>
+      <Stars
+        rating={props.rating}
+        setRating={(newRating) => props.setRating(newRating, props.index)}
+      />
+    </Col>
+    <Col>
+      <Button
+        onClick={(e) => {
+          props.setRoute("", props.index);
+          props.setRating(0, props.index);
+        }}
+      >
+        clear
+      </Button>
+    </Col>
+  </Row>
+);

@@ -64,7 +64,7 @@ export default () => {
       <ConditionalLink
         to={{
           pathname: "/results",
-          state: { preferences: getValidAndDistinctEntries(routeList) },
+          preferences: getValidAndDistinctEntries(routeList),
         }}
         condition={
           getValidAndDistinctEntries(routeList).length >=

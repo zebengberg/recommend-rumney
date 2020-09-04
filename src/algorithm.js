@@ -6,9 +6,16 @@ function getIntersection(user1, user2) {
   return Object.keys(user1).filter({}.hasOwnProperty.bind(user2));
 }
 
-/* Calculate taxicab distance between stars in user1 and user2 restricted to keys. */
+/* Calculate taxicab distance between stars in user1 and user2 restricted to 
+keys. The exact formula is taxicab metric - #keys / 2. This does not satisfy
+the triangle inequality because the intersection keys have no transitivity.*/
 function getDistance(user1, user2, keys) {
-  return keys.reduce((sum, key) => sum + Math.abs(user1[key] - user2[key]), 0);
+  const sum = keys.reduce(
+    (sum, key) => sum + Math.abs(user1[key] - user2[key]),
+    0
+  );
+  // TODO: make this fix better
+  return sum - keys.length / 2 + 10; // add 10 to keep positive;
 }
 
 /* Calculate the dot product of user1[keys] and user2[keys]. */
@@ -38,6 +45,9 @@ function getWeights(preferences) {
     const weightedAngle = intersection.length
       ? influence * getCosine(stars[cur], preferences, intersection)
       : 0;
+
+    // TODO: finish this!!
+    //const weightedDistance = intersection.length ? influence : 1;
 
     return { ...acc, [cur]: weightedAngle };
   }, {});

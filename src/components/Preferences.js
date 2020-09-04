@@ -63,7 +63,7 @@ export default () => {
       </Row>
       <ConditionalLink
         to={{
-          pathname: "/results",
+          pathname: "/recommendation",
           preferences: getValidAndDistinctEntries(routeList),
         }}
         condition={

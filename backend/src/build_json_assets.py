@@ -1,5 +1,6 @@
 import json
 import pandas as pd
+import numpy as np
 from scrape_rumney_routes import stars_file_path
 
 df = pd.read_csv(stars_file_path)
@@ -23,9 +24,9 @@ def build_user_data():
 
 def build_route_data():
   """Export list of MP Rumney users to file."""
-  route_df = df[['route', 'user', 'star']]
+  route_df = df[['route', 'user', 'star', 'grade']]
   grouped = route_df.groupby(by='route', as_index=False)
-  stats = grouped.agg({'user': 'count', 'star': 'mean'})
+  stats = grouped.agg({'user': 'count', 'star': 'mean', 'grade': 'first'})
   stats = stats.rename(columns={'user': 'n_votes', 'star': 'avg_stars'})
 
   # sorting routes by their number of votes
@@ -36,8 +37,34 @@ def build_route_data():
   stats.to_json(routes_json_path, orient='records')
 
 
-def build_route_best_preferences_data():
-  pass
+def build_route_std_data():
+  """Determine and sort routes according to the variation in star rating."""
+  route_df = df[['route', 'star']]
+  grouped = route_df.groupby(by='route', as_index=False)
+  stats = grouped.agg(['mean', lambda x: np.std(x, ddof=0), 'count'])
+
+  # columns are a MultiIndex; flattening them down
+  stats.columns = ['_'.join(col).rstrip('_') for col in stats.columns.values]
+  stats.rename(columns={'star_<lambda_0>': 'star_std'}, inplace=True)
+
+  # adding in grade columns
+  stats['grade'] = df[['route', 'grade']].groupby(by='route').first()
+  stats.reset_index(inplace=True)
+
+  # weight the standard deviation by some increasing function of route counts
+  # this weighting will avoid routes with few but varied star reviews
+  weight = lambda x: x ** 0.1
+  stats['star_weight'] = stats['star_std'] * weight(stats['star_count'])
+
+  # don't want to include very obscure routes
+  stats['star_weight'] *= stats['star_count'] > 50
+
+  # sorting
+  stats = stats.sort_values(by='star_weight', ascending=False)
+
+  # exporting
+  std_json_path = '../../src/assets/std.json'
+  stats.to_json(std_json_path, orient='records')
 
 
 def build_user_star_ratings_data():
@@ -58,3 +85,4 @@ if __name__ == '__main__':
   build_user_data()
   build_route_data()
   build_user_star_ratings_data()
+  build_route_std_data()

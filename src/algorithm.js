@@ -2,26 +2,31 @@ import stars from "./assets/stars.json";
 import routes from "./assets/routes.json";
 
 /* Determine routes in common to user1 and user2. */
-const getIntersection = (user1, user2) =>
-  //Object.keys(user1).filter((k) => k in user2);
-  Object.keys(user1).filter({}.hasOwnProperty.bind(user2));
+function getIntersection(user1, user2) {
+  return Object.keys(user1).filter({}.hasOwnProperty.bind(user2));
+}
+
+/* Calculate taxicab distance between stars in user1 and user2 restricted to keys. */
+function getDistance(user1, user2, keys) {
+  return keys.reduce((sum, key) => sum + Math.abs(user1[key] - user2[key]), 0);
+}
 
 /* Calculate the dot product of user1[keys] and user2[keys]. */
-const getDot = (user1, user2, keys) => {
+function getDotProduct(user1, user2, keys) {
   const products = keys.map((key) => user1[key] * user2[key]);
   return products.reduce((a, b) => a + b, 0);
-};
+}
 
 /* Calculate the cosine of the angle between user1[keys] and user2[keys]. */
-const getAngle = (user1, user2, keys) => {
-  const dot = getDot(user1, user2, keys);
-  const norm1 = getDot(user1, user1, keys);
-  const norm2 = getDot(user2, user2, keys);
+function getCosine(user1, user2, keys) {
+  const dot = getDotProduct(user1, user2, keys);
+  const norm1 = getDotProduct(user1, user1, keys);
+  const norm2 = getDotProduct(user2, user2, keys);
   return dot / Math.pow(norm1 * norm2, 0.5);
-};
+}
 
 /* Return an object of the form {user: weightedAngle}. */
-const getWeights = (preferences) => {
+function getWeights(preferences) {
   // Considering users who have reviewed routes in preferences.
   return Object.keys(stars).reduce((acc, cur) => {
     // Influence of the user is the log of the number of routes rated.
@@ -31,12 +36,12 @@ const getWeights = (preferences) => {
 
     // Avoiding dividing by zero in definition of getAngle.
     const weightedAngle = intersection.length
-      ? influence * getAngle(stars[cur], preferences, intersection)
+      ? influence * getCosine(stars[cur], preferences, intersection)
       : 0;
 
     return { ...acc, [cur]: weightedAngle };
   }, {});
-};
+}
 
 /* Returns an array of route names sorted in reverse by their recommendation. */
 export default (preferences) => {

@@ -68,16 +68,17 @@ def build_dataframe():
   url_df = url_df[url_df['Avg Stars'] != -1]  # ignoring routes without stars
   routes = list(url_df['Route'])
   urls = list(url_df['URL'])
+  ratings = list(url_df['Rating'])
   url_prefix = 'https://www.mountainproject.com/route/'
   # inserting 'stats/' into url to get MP stats for each route
   urls = [url_prefix + 'stats/' + url[len(url_prefix):] for url in urls]
 
   rows = []
-  for route, url in zip(tqdm(routes), urls):
+  for route, url, rating in zip(tqdm(routes), urls, ratings):
     users, stars = scrape_url(url)
     sleep(1)  # giving MP server a break
     for user, star in zip(users, stars):
-      rows.append({'route': route, 'user': user, 'star': star})
+      rows.append({'route': route, 'user': user, 'star': star, 'grade': rating})
 
 
   logging.info('Scraped %s route-user-star records from MP.', len(rows))

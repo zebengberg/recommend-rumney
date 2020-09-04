@@ -35,12 +35,10 @@ export default (props) => (
       }
       return aLower[props.sortKey] < bLower[props.sortKey] ? -1 : 1;
     }}
-    onChange={(_, v) => props.setValue(v)}
-    onSelect={(_, item) => {
-      props.setValue(item[props.itemKey]);
-      if ("setMeasure" in props) {
-        props.setMeasure(item[props.sortKey]);
-      }
+    onChange={(e) => props.setValue(e.target.value)}
+    onSelect={(v, item) => {
+      props.setValue(v);
+      props.setItem(item);
     }}
     menuStyle={{
       borderRadius: "3px",
@@ -50,7 +48,7 @@ export default (props) => (
       fontSize: "90%",
       position: "fixed",
       overflow: "auto",
-      maxHeight: "50%", // TODO: don't cheat, let it flow to the bottom
+      maxHeight: "50%",
       zIndex: "998",
     }}
   />

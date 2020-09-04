@@ -6,8 +6,9 @@ import users from "../assets/users.json";
 import fly from "../assets/fly.jpg";
 
 export default () => {
-  const [user, setUser] = useState("");
-  const [numVotes, setNumVotes] = useState(null);
+  const [userValue, setUserValue] = useState("");
+  const [userObject, setUserObject] = useState({});
+
   return (
     <>
       <Jumbotron
@@ -32,18 +33,18 @@ export default () => {
         <h3>Already a contributor?</h3>
         <p>Search for your Mountain Project username below.</p>
         <Autocomplete
-          value={user}
-          setValue={setUser}
-          setMeasure={setNumVotes}
+          value={userValue}
+          setValue={setUserValue}
+          setItem={setUserObject} // placeholder; could use this to grab data on user
           items={users}
           itemKey={"user"}
           sortKey={"n_votes"}
         />
-        {numVotes !== null && (
+        {userObject.n_votes !== null && (
           <p>
-            Wow, congratulations <b>{user}</b>! You have given star ratings to{" "}
-            <b>{numVotes}</b> routes in the Mountain Project Rumney database.
-            You are {adjective(numVotes)} user.
+            Wow, congratulations <b>{userValue}</b>! You have given star ratings
+            to <b>{userObject.n_votes}</b> routes in the Mountain Project Rumney
+            database. You are {adjective(userObject.n_votes)} user.
           </p>
         )}
 
@@ -53,7 +54,7 @@ export default () => {
               <Button size="lg">Build your own custom preferences</Button>
             </Link>
           </Col>
-          {numVotes !== null && (
+          {userObject.n_votes !== null && (
             <Col>
               <Link to="/implement-this">
                 <Button size="lg">Use your existing ratings</Button>

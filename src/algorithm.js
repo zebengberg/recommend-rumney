@@ -80,3 +80,37 @@ export default (preferences) => {
   // TODO: do something with the score
   return recommendations.map(([route, score]) => route);
 };
+
+const testRecommendations = [
+  "Lonesome Dove",
+  "Armed and Dangerous, and Off My Medication",
+  "Yoda",
+  "Underdog",
+  "Junco",
+  "Metamorphosis",
+  "Oby-won Ryobi",
+  "Masterpiece",
+  "Waimea",
+  "Clip a Dee Doo Dah",
+  "Millenium Falcon",
+  "Peer Pressure",
+  "Jolt",
+  "Sweet Polly Purebred",
+  "Centerpiece",
+  "Romancing the Stone",
+  "Hippos on Parade",
+  "Glory Jean's",
+  "Lies and Propaganda",
+  "War and  Peace",
+  "Bolt Line",
+  "Scene of the Crime",
+  "Clusterphobia",
+  "Tropicana",
+  "Sesame Street",
+  "Flying Hawaiian",
+  "No Money Down",
+  "The Big Easy",
+  "Rise and Shine",
+  "Espresso",
+  "Know Ethics",
+];

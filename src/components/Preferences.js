@@ -4,7 +4,7 @@ import Link from "react-router-dom/Link";
 import RankedRoute from "./RankedRoute";
 
 export default () => {
-  const [routeList, setRouteList] = useState([{ route: "", rating: 0 }]);
+  const [routeList, setRouteList] = useState([{ route: {}, rating: 0 }]);
   const [buttonClicked, setButtonClicked] = useState(false);
 
   // Add a new <RankedRoute> if the last one has been filled.
@@ -13,7 +13,7 @@ export default () => {
     routeList[routeList.length - 1].route &&
     routeList[routeList.length - 1].rating
   ) {
-    setRouteList([...routeList, { route: "", rating: 0 }]);
+    setRouteList([...routeList, { route: {}, rating: 0 }]);
     setButtonClicked(false);
   }
 

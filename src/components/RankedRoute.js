@@ -30,7 +30,7 @@ export default (props) => {
 
       <Col>
         <Button
-          onClick={(e) => {
+          onClick={() => {
             props.setRoute({}, props.index);
             props.setRating(0, props.index);
             setAutocompleteValue("");

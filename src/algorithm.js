@@ -1,6 +1,29 @@
 import stars from "./assets/stars.json";
 import routes from "./assets/routes.json";
 
+/* Transforming list of {route, rating, grade} objects into a single object of
+the form {route: {rating, grade}} */
+export function routeListToObject(routeList) {
+  const validList = routeList.filter((o) => o.route && o.rating);
+  return validList.reduce(
+    (acc, cur) => ({
+      ...acc,
+      [cur.route]: { rating: cur.rating, grade: cur.grade },
+    }),
+    {}
+  );
+}
+
+// Helper function
+const getValidAndDistinctEntries = (list) => {
+  const validList = list.filter((o) => o.route && o.rating);
+  // Using filter for routeNames to avoid empty string as name
+  const routeNames = validList.map((o) => o.route).filter((o) => o);
+  const firstIndices = routeNames.map((name) => routeNames.indexOf(name));
+  const firstIndicesNoDuplicates = [...new Set(firstIndices)];
+  return firstIndicesNoDuplicates.map((i) => validList[i]);
+};
+
 /* Determine routes in common to user1 and user2. */
 function getIntersection(user1, user2) {
   return Object.keys(user1).filter({}.hasOwnProperty.bind(user2));
@@ -81,7 +104,7 @@ export default (preferences) => {
   return recommendations.map(([route, score]) => route);
 };
 
-const testRecommendations = [
+export const testRecommendations = [
   "Lonesome Dove",
   "Armed and Dangerous, and Off My Medication",
   "Yoda",

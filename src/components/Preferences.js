@@ -1,11 +1,17 @@
 import React, { useState } from "react";
-import { Container, Row, Button, Alert } from "react-bootstrap";
+import { Container, Row, Button, Alert, Spinner } from "react-bootstrap";
 import Link from "react-router-dom/Link";
 import RankedRoute from "./RankedRoute";
+import LoadingButton from "./LoadingButton";
+import getRecommendations, { routeListToObject } from "../algorithm";
 
 export default () => {
-  const [routeList, setRouteList] = useState([{ route: {}, rating: 0 }]);
-  const [buttonClicked, setButtonClicked] = useState(false);
+  const [routeList, setRouteList] = useState([
+    { route: "", grade: "", rating: 0 },
+  ]);
+  const [submitButtonClicked, setSubmitButtonClicked] = useState(false);
+  const [allowSubmit, setAllowSubmit] = useState(false);
+  const [recommendations, setRecommendations] = useState(null);
 
   // Add a new <RankedRoute> if the last one has been filled.
   // Reset the warning alert
@@ -13,22 +19,14 @@ export default () => {
     routeList[routeList.length - 1].route &&
     routeList[routeList.length - 1].rating
   ) {
-    setRouteList([...routeList, { route: {}, rating: 0 }]);
-    setButtonClicked(false);
+    setRouteList([...routeList, { route: "", grade: "", rating: 0 }]);
+    setSubmitButtonClicked(false);
+
+    var minRequired = 5;
+    setAllowSubmit(
+      Object.keys(routeListToObject(routeList)).length >= minRequired
+    );
   }
-
-  // Determine if sufficient route preferences are given for submission.
-  const minDistinctRoutesRequired = 5;
-
-  // Helper function
-  const getValidAndDistinctEntries = (list) => {
-    const validList = list.filter((o) => o.route && o.rating);
-    // Using filter for routeNames to avoid empty string as name
-    const routeNames = validList.map((o) => o.route).filter((o) => o);
-    const firstIndices = routeNames.map((name) => routeNames.indexOf(name));
-    const firstIndicesNoDuplicates = [...new Set(firstIndices)];
-    return firstIndicesNoDuplicates.map((i) => validList[i]);
-  };
 
   const ConditionalLink = ({ children, to, condition }) =>
     condition && to ? <Link to={to}>{children}</Link> : <>{children}</>;
@@ -41,50 +39,73 @@ export default () => {
         of your current preferences. Enter several Rumney routes for which you
         have strong opinions (positive or negative) below.
       </p>
-      <Row>
-        {routeList.map((routeObject, index) => (
+
+      {routeList.map((routeObject, index) => (
+        <Row key={index /* very very import to have this key! */}>
           <RankedRoute
-            key={index.toString()}
             index={index}
-            route={routeObject.route}
             setRoute={(newRoute, passedIndex) => {
-              const routeListCopy = [...routeList];
-              routeListCopy[passedIndex].route = newRoute;
-              setRouteList(routeListCopy);
+              const newRouteList = [...routeList];
+              newRouteList[passedIndex] = {
+                route: newRoute.route,
+                grade: newRoute.grade,
+              };
+              setRouteList(newRouteList);
             }}
             rating={routeObject.rating}
             setRating={(newRating, passedIndex) => {
-              const routeListCopy = [...routeList];
-              routeListCopy[passedIndex].rating = newRating;
-              setRouteList(routeListCopy);
+              const newRouteList = [...routeList];
+              newRouteList[passedIndex].rating = newRating;
+              setRouteList(newRouteList);
             }}
           />
-        ))}
-      </Row>
-      <ConditionalLink
+        </Row>
+      ))}
+
+      <LoadingButton
+        text={"Get Recommendations"}
+        routeList={routeList}
+        setRecommendations={setRecommendations}
+        allowSubmit={allowSubmit}
+      />
+
+      {/* <ConditionalLink
         to={{
           pathname: "/recommendation",
-          preferences: getValidAndDistinctEntries(routeList),
+          recommendations: recommendations,
         }}
-        condition={
-          getValidAndDistinctEntries(routeList).length >=
-          minDistinctRoutesRequired
-        }
+        condition={allowSubmit}
       >
-        <Button onClick={(e) => setButtonClicked(true)}>
-          Get Recommendation
+        <Button
+          onClick={() => {
+            setSubmitButtonClicked(true);
+            if (allowSubmit && submitButtonClicked) {
+              setRecommendations(
+                getRecommendations(routeListToObject(routeList))
+              );
+            }
+          }}
+        >
+          {allowSubmit && submitButtonClicked ? (
+            <Spinner
+              as="span"
+              animation="border"
+              size="lg"
+              role="status"
+              aria-hidden="false"
+            />
+          ) : (
+            <div>Get Recommendation</div>
+          )}
         </Button>
       </ConditionalLink>
-      {getValidAndDistinctEntries(routeList).length <
-        minDistinctRoutesRequired &&
-        buttonClicked && (
-          <Alert variant="warning">
-            You must complete preferences for {minDistinctRoutesRequired}{" "}
-            distinct routes to continue. So far you have only completed
-            preferences for {getValidAndDistinctEntries(routeList).length}{" "}
-            distinct routes.
-          </Alert>
-        )}
+      {!allowSubmit && submitButtonClicked && (
+        <Alert variant="warning">
+          You must complete preferences for {minRequired} distinct routes to
+          continue. So far you have only completed preferences for{" "}
+          {Object.keys(routeListToObject(routeList)).length} distinct routes.
+        </Alert>
+      )} */}
     </Container>
   );
 };

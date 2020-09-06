@@ -1,41 +1,71 @@
-import React, { useState, useEffect } from "react";
-import Button from "react-bootstrap/Button";
+import React, { useEffect, useState } from "react";
+import { Button, Alert, Spinner } from "react-bootstrap";
 import getRecommendations, { routeListToObject } from "../algorithm";
-
-function simulateNetworkRequest() {
-  return new Promise((resolve) => setTimeout(resolve, 2000));
-}
+import Redirect from "react-router-dom/Redirect";
 
 export default (props) => {
-  const [isLoading, setLoading] = useState(false);
+  return (
+    <>
+      <Button
+        variant="primary"
+        disabled={props.submitButtonClicked && props.allowSubmit}
+        onClick={
+          !props.submitButtonClicked
+            ? () => {
+                props.setSubmitButtonClicked(true);
+              }
+            : null
+        }
+      >
+        {props.allowSubmit && props.submitButtonClicked ? (
+          <LoadingButtonText
+            allowSubmit={props.allowSubmit}
+            submitButtonClicked={props.submitButtonClicked}
+            routeList={props.routeList}
+            setRecommendations={props.setRecommendations}
+          />
+        ) : (
+          "Get Recommendations"
+        )}
+      </Button>
+      {!props.allowSubmit && props.submitButtonClicked && (
+        <Alert variant="warning" style={{ marginTop: 50 }}>
+          You must complete preferences for {props.minRequired} distinct routes
+          to continue. So far you have only completed preferences for{" "}
+          {Object.keys(routeListToObject(props.routeList)).length} distinct
+          routes.
+        </Alert>
+      )}
+    </>
+  );
+};
 
-  const getRecs = async () => {
-    console.log("hihi");
-    const routesAsObject = routeListToObject(props.routeList);
-    console.log(routesAsObject);
-    return await getRecommendations(routesAsObject);
-  };
+const LoadingButtonText = (props) => {
+  const [recommendations, setRecommendations] = useState(null);
 
   useEffect(() => {
-    if (isLoading) {
-      console.log("here");
-      getRecs().then((recs) => {
-        setLoading(false);
-        props.setRecommendations(recs);
-        console.log(recs);
-      });
-    }
-  });
-
-  const handleClick = () => setLoading(true);
+    // Timeout guarantees "Calculating..." will render before recommendations calculated
+    setTimeout(
+      () =>
+        setRecommendations(
+          getRecommendations(routeListToObject(props.routeList))
+        ),
+      50
+    );
+  }, [props.routeList]);
 
   return (
-    <Button
-      variant="primary"
-      disabled={isLoading}
-      onClick={!isLoading ? handleClick : null}
-    >
-      {isLoading ? "Calculating....." : props.text}
-    </Button>
+    <>
+      <div>Calculating...</div>
+      <Spinner animation="border" variant="info" />
+      {recommendations !== null && (
+        <Redirect
+          to={{
+            pathname: "/recommendation",
+            recommendations: recommendations,
+          }}
+        />
+      )}
+    </>
   );
 };

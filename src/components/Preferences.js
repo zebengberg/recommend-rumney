@@ -1,9 +1,11 @@
-import React, { useState } from "react";
-import { Container, Row, Button, Alert, Spinner } from "react-bootstrap";
-import Link from "react-router-dom/Link";
+import React, { useState, useEffect } from "react";
+import { Container, Row } from "react-bootstrap";
 import RankedRoute from "./RankedRoute";
 import LoadingButton from "./LoadingButton";
-import getRecommendations, { routeListToObject } from "../algorithm";
+import { routeListToObject } from "../algorithm";
+
+// Minimum number of preferences before allowing submission
+const minRequired = 2;
 
 export default () => {
   const [routeList, setRouteList] = useState([
@@ -11,25 +13,20 @@ export default () => {
   ]);
   const [submitButtonClicked, setSubmitButtonClicked] = useState(false);
   const [allowSubmit, setAllowSubmit] = useState(false);
-  const [recommendations, setRecommendations] = useState(null);
 
   // Add a new <RankedRoute> if the last one has been filled.
-  // Reset the warning alert
-  if (
-    routeList[routeList.length - 1].route &&
-    routeList[routeList.length - 1].rating
-  ) {
-    setRouteList([...routeList, { route: "", grade: "", rating: 0 }]);
-    setSubmitButtonClicked(false);
-
-    var minRequired = 5;
-    setAllowSubmit(
-      Object.keys(routeListToObject(routeList)).length >= minRequired
-    );
-  }
-
-  const ConditionalLink = ({ children, to, condition }) =>
-    condition && to ? <Link to={to}>{children}</Link> : <>{children}</>;
+  useEffect(() => {
+    if (
+      routeList[routeList.length - 1].route &&
+      routeList[routeList.length - 1].rating
+    ) {
+      setRouteList([...routeList, { route: "", grade: "", rating: 0 }]);
+      setSubmitButtonClicked(false); // reset the button to hide alert
+      setAllowSubmit(
+        Object.keys(routeListToObject(routeList)).length >= minRequired
+      );
+    }
+  }, [routeList]);
 
   return (
     <Container className="p-3">
@@ -63,49 +60,12 @@ export default () => {
       ))}
 
       <LoadingButton
-        text={"Get Recommendations"}
         routeList={routeList}
-        setRecommendations={setRecommendations}
         allowSubmit={allowSubmit}
+        submitButtonClicked={submitButtonClicked}
+        setSubmitButtonClicked={setSubmitButtonClicked}
+        minRequired={minRequired}
       />
-
-      {/* <ConditionalLink
-        to={{
-          pathname: "/recommendation",
-          recommendations: recommendations,
-        }}
-        condition={allowSubmit}
-      >
-        <Button
-          onClick={() => {
-            setSubmitButtonClicked(true);
-            if (allowSubmit && submitButtonClicked) {
-              setRecommendations(
-                getRecommendations(routeListToObject(routeList))
-              );
-            }
-          }}
-        >
-          {allowSubmit && submitButtonClicked ? (
-            <Spinner
-              as="span"
-              animation="border"
-              size="lg"
-              role="status"
-              aria-hidden="false"
-            />
-          ) : (
-            <div>Get Recommendation</div>
-          )}
-        </Button>
-      </ConditionalLink>
-      {!allowSubmit && submitButtonClicked && (
-        <Alert variant="warning">
-          You must complete preferences for {minRequired} distinct routes to
-          continue. So far you have only completed preferences for{" "}
-          {Object.keys(routeListToObject(routeList)).length} distinct routes.
-        </Alert>
-      )} */}
     </Container>
   );
 };

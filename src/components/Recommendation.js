@@ -13,7 +13,7 @@ export default (props) => {
 
   return (
     <Container>
-      <h1>Recommendations</h1>
+      <h1 style={{ margin: 50 }}>Recommendations</h1>
       {recommendations === undefined ? (
         <Alert variant="warning">
           No preferences recorded. Please go to the{" "}

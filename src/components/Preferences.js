@@ -46,6 +46,7 @@ export default () => {
               newRouteList[passedIndex] = {
                 route: newRoute.route,
                 grade: newRoute.grade,
+                rating: 0, // could also keep the current value here if modifying
               };
               setRouteList(newRouteList);
             }}

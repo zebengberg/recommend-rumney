@@ -1,15 +1,24 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Container, Alert } from "react-bootstrap";
 import Link from "react-router-dom/Link";
-import Slider from "./Slider";
+import Slider, { gradeToNumber, gradeList } from "./Slider";
 
 export default (props) => {
   const [lower, setLower] = useState(0);
-  const [upper, setUpper] = useState(0);
-
+  const [upper, setUpper] = useState(gradeList.length - 1);
   const recommendations = props.location.recommendations;
+  const [filteredRecs, setFilteredRecs] = useState(recommendations);
 
-  console.log(recommendations);
+  useEffect(() => {
+    if (recommendations !== undefined) {
+      setFilteredRecs(
+        recommendations.filter((route) => {
+          const grade = gradeToNumber(route[1].grade);
+          return grade <= upper && grade >= lower;
+        })
+      );
+    }
+  }, [lower, upper, recommendations]);
 
   return (
     <Container>
@@ -17,7 +26,7 @@ export default (props) => {
       {recommendations === undefined ? (
         <Alert variant="warning">
           No preferences recorded. Please go to the{" "}
-          <Link to="/preferences">preferences page</Link> to log your opionions.
+          <Link to="/preferences">preferences page</Link> to log your opinions.
         </Alert>
       ) : (
         <>
@@ -28,11 +37,22 @@ export default (props) => {
             upper={upper}
             setUpper={setUpper}
           />
-          {/* <ol>
-            {recommendations.map((route) => (
-              <li key={route}>{route}</li>
-            ))}
-          </ol> */}
+          <table>
+            <thead>
+              <tr>
+                <th>Route</th>
+                <th>Grade</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredRecs.map(([route, routeInfo]) => (
+                <tr key={route}>
+                  <td>{route}</td>
+                  <td>{routeInfo.grade}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </>
       )}
     </Container>

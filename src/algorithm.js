@@ -24,7 +24,7 @@ const getValidAndDistinctEntries = (list) => {
   return firstIndicesNoDuplicates.map((i) => validList[i]);
 };
 
-/* Determine routes in common to user1 and user2. */
+/* Determine routes in common to user1 and user2. Returns an array of route names. */
 function getIntersection(user1, user2) {
   return Object.keys(user1).filter({}.hasOwnProperty.bind(user2));
 }
@@ -58,21 +58,24 @@ function getCosine(user1, user2, keys) {
 /* Return an object of the form {user: weightedAngle}. */
 function getWeights(preferences) {
   // Considering users who have reviewed routes in preferences.
-  return Object.keys(stars).reduce((acc, cur) => {
+  return Object.keys(stars).reduce((acc, user) => {
     // Influence of the user is the log of the number of routes rated.
-    const influence = Math.log2(Object.keys(stars[cur]).length);
+    const influence = Math.log2(Object.keys(stars[user]).length);
 
-    const intersection = getIntersection(stars[cur], preferences);
+    const intersection = getIntersection(stars[user], preferences);
 
     // Avoiding dividing by zero in definition of getAngle.
-    const weightedAngle = intersection.length
-      ? influence * getCosine(stars[cur], preferences, intersection)
+    let weightedAngle = intersection.length
+      ? influence * getCosine(stars[user], preferences, intersection)
       : 0;
+    weightedAngle = 1;
+
+    //console.log(weightedAngle);
 
     // TODO: finish this!!
     //const weightedDistance = intersection.length ? influence : 1;
 
-    return { ...acc, [cur]: weightedAngle };
+    return { ...acc, [user]: weightedAngle };
   }, {});
 }
 
@@ -80,16 +83,16 @@ function getWeights(preferences) {
 export default (preferences) => {
   const weights = getWeights(preferences);
 
-  // Object with route names as keys and all values as 0.
+  // Object with key = route name and value = {grade, score} object.
   let recommendations = routes.reduce(
-    (acc, cur) => ({ ...acc, [cur.route]: 0 }),
+    (acc, cur) => ({ ...acc, [cur.route]: { grade: cur.grade, score: 0 } }),
     {}
   );
 
   // Populating the recommendations object.
   recommendations = Object.entries(stars).reduce((acc, [user, routeObject]) => {
     for (const route in routeObject) {
-      acc[route] += routeObject[route] * weights[user];
+      acc[route].score += routeObject[route] * weights[user];
     }
     return acc;
   }, recommendations);
@@ -97,43 +100,7 @@ export default (preferences) => {
   // Transforming into entries array in order to sort.
   // A route appears earlier in the array if it has a higher recommendation.
   recommendations = Object.entries(recommendations);
-  recommendations = recommendations.sort((a, b) => b[1] - a[1]);
+  recommendations = recommendations.sort((a, b) => b[1].score - a[1].score);
 
-  // Picking off just the route name, which will be returned as an array.
-  // TODO: do something with the score
-  return recommendations.map(([route, score]) => route);
+  return recommendations;
 };
-
-export const testRecommendations = [
-  "Lonesome Dove",
-  "Armed and Dangerous, and Off My Medication",
-  "Yoda",
-  "Underdog",
-  "Junco",
-  "Metamorphosis",
-  "Oby-won Ryobi",
-  "Masterpiece",
-  "Waimea",
-  "Clip a Dee Doo Dah",
-  "Millenium Falcon",
-  "Peer Pressure",
-  "Jolt",
-  "Sweet Polly Purebred",
-  "Centerpiece",
-  "Romancing the Stone",
-  "Hippos on Parade",
-  "Glory Jean's",
-  "Lies and Propaganda",
-  "War and  Peace",
-  "Bolt Line",
-  "Scene of the Crime",
-  "Clusterphobia",
-  "Tropicana",
-  "Sesame Street",
-  "Flying Hawaiian",
-  "No Money Down",
-  "The Big Easy",
-  "Rise and Shine",
-  "Espresso",
-  "Know Ethics",
-];

@@ -5,7 +5,7 @@ import LoadingButton from "./LoadingButton";
 import { routeListToObject } from "../algorithm";
 
 // Minimum number of preferences before allowing submission
-const minRequired = 2;
+const minRequired = 1;
 
 export default () => {
   const [routeList, setRouteList] = useState([

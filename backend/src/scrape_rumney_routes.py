@@ -71,21 +71,22 @@ def build_dataframe():
   ratings = list(url_df['Rating'])
   url_prefix = 'https://www.mountainproject.com/route/'
   # inserting 'stats/' into url to get MP stats for each route
-  urls = [url_prefix + 'stats/' + url[len(url_prefix):] for url in urls]
+  stat_urls = [url_prefix + 'stats/' + url[len(url_prefix):] for url in urls]
 
   rows = []
-  for route, url, rating in zip(tqdm(routes), urls, ratings):
-    users, stars = scrape_url(url)
+  for route, url, stat_url, rating in zip(tqdm(routes), urls, stat_urls, ratings):
+    users, stars = scrape_url(stat_url)
     sleep(1)  # giving MP server a break
     for user, star in zip(users, stars):
-      rows.append({'route': route, 'user': user, 'star': star, 'grade': rating})
+      rows.append({'route': route, 'user': user, 'star': star,
+                   'grade': rating, 'url': url})
 
 
   logging.info('Scraped %s route-user-star records from MP.', len(rows))
 
   df = pd.DataFrame(rows)
   df.to_csv(stars_file_path, index=False)
-  logging.info('Data written to: %s \n', stars_file_path.split('/')[-1])
+  logging.info('Data written to: %s \n\n', stars_file_path.split('/')[-1])
 
 
 if __name__ == '__main__':

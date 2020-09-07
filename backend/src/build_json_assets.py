@@ -18,26 +18,26 @@ def build_user_data():
   counts = counts.sort_values(by='n_votes', ascending=False)
 
   # exporting
-  users_json_path = '../../src/assets/users.json'
+  users_json_path = '../../src/assets/users_array.json'
   counts.to_json(users_json_path, orient='records')
 
 
 def build_route_data():
   """Export list of MP Rumney users to file."""
-  route_df = df[['route', 'user', 'star', 'grade']]
+  route_df = df[['route', 'user', 'star', 'grade', 'url']]
   grouped = route_df.groupby(by='route', as_index=False)
-  stats = grouped.agg({'user': 'count', 'star': 'mean', 'grade': 'first'})
+  stats = grouped.agg({'user': 'count', 'star': 'mean', 'grade': 'first', 'url': 'first'})
   stats = stats.rename(columns={'user': 'n_votes', 'star': 'avg_stars'})
 
   # sorting routes by their number of votes
   stats = stats.sort_values(by='n_votes', ascending=False)
 
   # exporting
-  routes_json_path = '../../src/assets/routes.json'
+  routes_json_path = '../../src/assets/routes_array.json'
   stats.to_json(routes_json_path, orient='records')
 
 
-def build_route_std_data():
+def build_route_stats_data():
   """Determine and sort routes according to the variation in star rating."""
   route_df = df[['route', 'star']]
   grouped = route_df.groupby(by='route', as_index=False)
@@ -47,10 +47,6 @@ def build_route_std_data():
   stats.columns = ['_'.join(col).rstrip('_') for col in stats.columns.values]
   stats.rename(columns={'star_<lambda_0>': 'star_std'}, inplace=True)
 
-  # adding in grade columns
-  stats['grade'] = df[['route', 'grade']].groupby(by='route').first()
-  stats.reset_index(inplace=True)
-
   # weight the standard deviation by some increasing function of route counts
   # this weighting will avoid routes with few but varied star reviews
   weight = lambda x: x ** 0.1
@@ -59,12 +55,22 @@ def build_route_std_data():
   # don't want to include very obscure routes
   stats['star_weight'] *= stats['star_count'] > 50
 
+  # keeping route names as column
+  stats.reset_index(inplace=True)
+
   # sorting
   stats = stats.sort_values(by='star_weight', ascending=False)
 
-  # exporting
-  std_json_path = '../../src/assets/std.json'
-  stats.to_json(std_json_path, orient='records')
+  # exporting array
+  stats_json_path = '../../src/assets/stats_array.json'
+  stats.to_json(stats_json_path, orient='records')
+
+  # building dictionary to export as json
+  d = dict(zip(stats['route'], stats['star_std']))
+  std_json_path = '../../src/assets/std_object.json'
+  with open(std_json_path, 'w') as f:
+    json.dump(d, f)
+
 
 
 def build_user_star_ratings_data():
@@ -76,7 +82,7 @@ def build_user_star_ratings_data():
   d = {user: dict(zip(group['route'], group['star'])) for user, group in grouped}
 
   # exporting
-  stars_json_path = '../../src/assets/stars.json'
+  stars_json_path = '../../src/assets/stars_object.json'
   with open(stars_json_path, 'w') as f:
     json.dump(d, f)
 
@@ -85,4 +91,4 @@ if __name__ == '__main__':
   build_user_data()
   build_route_data()
   build_user_star_ratings_data()
-  build_route_std_data()
+  build_route_stats_data()

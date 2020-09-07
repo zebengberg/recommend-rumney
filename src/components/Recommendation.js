@@ -37,18 +37,26 @@ export default (props) => {
             upper={upper}
             setUpper={setUpper}
           />
+          <p>
+            The recommendation algorithm sorts the routes below according to a
+            predicted number of stars you'd give them.
+          </p>
           <table>
             <thead>
               <tr>
                 <th>Route</th>
                 <th>Grade</th>
+                <th>Predicted Stars</th>
               </tr>
             </thead>
             <tbody>
               {filteredRecs.map(([route, routeInfo]) => (
                 <tr key={route}>
-                  <td>{route}</td>
+                  <td>
+                    <a href={routeInfo.url}>{route.slice(0, 52)}</a>
+                  </td>
                   <td>{routeInfo.grade}</td>
+                  <td>{routeInfo.score}</td>
                 </tr>
               ))}
             </tbody>

@@ -2,15 +2,13 @@ import React, { useState, useEffect } from "react";
 import { Container, Row } from "react-bootstrap";
 import RankedRoute from "./RankedRoute";
 import LoadingButton from "./LoadingButton";
-import { routeListToObject } from "../algorithm";
+import { routeListToObjectOfRatings } from "../algorithm";
 
 // Minimum number of preferences before allowing submission
 const minRequired = 1;
 
 export default () => {
-  const [routeList, setRouteList] = useState([
-    { route: "", grade: "", rating: 0 },
-  ]);
+  const [routeList, setRouteList] = useState([{ route: "", rating: 0 }]);
   const [submitButtonClicked, setSubmitButtonClicked] = useState(false);
   const [allowSubmit, setAllowSubmit] = useState(false);
 
@@ -20,10 +18,10 @@ export default () => {
       routeList[routeList.length - 1].route &&
       routeList[routeList.length - 1].rating
     ) {
-      setRouteList([...routeList, { route: "", grade: "", rating: 0 }]);
+      setRouteList([...routeList, { route: "", rating: 0 }]);
       setSubmitButtonClicked(false); // reset the button to hide alert
       setAllowSubmit(
-        Object.keys(routeListToObject(routeList)).length >= minRequired
+        Object.keys(routeListToObjectOfRatings(routeList)).length >= minRequired
       );
     }
   }, [routeList]);
@@ -43,11 +41,7 @@ export default () => {
             index={index}
             setRoute={(newRoute, passedIndex) => {
               const newRouteList = [...routeList];
-              newRouteList[passedIndex] = {
-                route: newRoute.route,
-                grade: newRoute.grade,
-                rating: 0, // could also keep the current value here if modifying
-              };
+              newRouteList[passedIndex].route = newRoute.route;
               setRouteList(newRouteList);
             }}
             rating={routeObject.rating}

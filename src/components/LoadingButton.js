@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Button, Alert, Spinner } from "react-bootstrap";
-import getRecommendations, { routeListToObject } from "../algorithm";
+import getRecommendations, { routeListToObjectOfRatings } from "../algorithm";
 import Redirect from "react-router-dom/Redirect";
 
 export default (props) => {
@@ -32,8 +32,8 @@ export default (props) => {
         <Alert variant="warning" style={{ marginTop: 50 }}>
           You must complete preferences for {props.minRequired} distinct routes
           to continue. So far you have only completed preferences for{" "}
-          {Object.keys(routeListToObject(props.routeList)).length} distinct
-          routes.
+          {Object.keys(routeListToObjectOfRatings(props.routeList)).length}{" "}
+          distinct routes.
         </Alert>
       )}
     </>
@@ -48,7 +48,7 @@ const LoadingButtonText = (props) => {
     setTimeout(
       () =>
         setRecommendations(
-          getRecommendations(routeListToObject(props.routeList))
+          getRecommendations(routeListToObjectOfRatings(props.routeList))
         ),
       50
     );

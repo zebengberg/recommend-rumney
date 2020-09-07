@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Row, Col } from "react-bootstrap";
 import Autocomplete from "./Autocomplete";
 import Stars from "./Stars";
-import routes from "../assets/routes.json";
+import routes_array from "../assets/routes_array.json";
 import { Button } from "react-bootstrap";
 
 export default (props) => {
@@ -14,7 +14,7 @@ export default (props) => {
           value={autocompleteValue}
           setValue={setAutocompleteValue}
           setItem={(newRoute) => props.setRoute(newRoute, props.index)}
-          items={routes}
+          items={routes_array}
           itemKey={"route"}
           sortKey={"n_votes"}
           inputProps={{ style: { width: "20rem" } }}

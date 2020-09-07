@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Jumbotron, Button, Row, Container, Col } from "react-bootstrap";
 import Link from "react-router-dom/Link";
 import Autocomplete from "./Autocomplete";
-import users from "../assets/users.json";
+import users_array from "../assets/users_array.json";
 import fly from "../assets/fly.jpg";
 
 export default () => {
@@ -36,7 +36,7 @@ export default () => {
           value={userValue}
           setValue={setUserValue}
           setItem={setUserObject} // placeholder; could use this to grab data on user
-          items={users}
+          items={users_array}
           itemKey={"user"}
           sortKey={"n_votes"}
         />

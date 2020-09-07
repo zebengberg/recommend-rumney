@@ -50,7 +50,7 @@ export default (props) => (
         props.setUpper(value[1]);
       }}
       tipFormatter={(value) => gradeList[value]}
-      // TODO: could use indexOf('5.10a') to find an initial index
+      // could use indexOf('5.10a') to find an initial index
       marks={[2, 6, 10, 14, 18, 22, 26, 30].reduce(
         (acc, cur) => ({ ...acc, [cur]: gradeList[cur] }),
         {}

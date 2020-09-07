@@ -23,7 +23,7 @@ function getDistance(user1, user2, keys) {
   return keys.reduce((sum, key) => sum + Math.abs(user1[key] - user2[key]), 0);
 }
 
-/* Return an object of the form {user: weightedAngle}. */
+/* Return an object of the form {user: {dist, influence}}. */
 function getWeights(preferences) {
   // Considering users who have reviewed routes in preferences.
   return Object.keys(stars_object).reduce((acc, user) => {
@@ -39,25 +39,13 @@ function getWeights(preferences) {
     );
 
     const penalty = complementRoutes.reduce(
-      (total, route) => total + std_object.route,
+      (total, route) => total + std_object[route],
       0
     );
 
     dist += penalty;
-    console.log(dist);
-
-    // Avoiding dividing by zero in definition of getAngle.
-    // let weightedAngle = intersection.length
-    //   ? influence * getCosine(stars[user], preferences, intersection)
-    //   : 0;
-    let weightedAngle = 1;
-
-    //console.log(weightedAngle);
-
-    // TODO: finish this!!
-    //const weightedDistance = intersection.length ? influence : 1;
-
-    return { ...acc, [user]: weightedAngle };
+    dist++; // TODO: do something better here!
+    return { ...acc, [user]: { dist, influence } };
   }, {});
 }
 
@@ -66,29 +54,42 @@ export default (preferences) => {
   const weights = getWeights(preferences);
 
   // Object with key = route name and value = {grade, score} object.
-  let recommendations = routes_array.reduce(
+  const emptyRecommendations = routes_array.reduce(
     (acc, cur) => ({
       ...acc,
-      [cur.route]: { grade: cur.grade, url: cur.url, score: 0 },
+      [cur.route]: { grade: cur.grade, url: cur.url, score: 0, maxScore: 0 },
     }),
     {}
   );
 
   // Populating the recommendations object.
-  recommendations = Object.entries(stars_object).reduce(
+  let recommendations = Object.entries(stars_object).reduce(
     (acc, [user, routeObject]) => {
       for (const route in routeObject) {
-        acc[route].score += routeObject[route] * weights[user];
+        const multiplier = (1 / weights[user].dist) * weights[user].influence;
+        acc[route].score += routeObject[route] * multiplier;
+        acc[route].maxScore += multiplier;
       }
       return acc;
     },
-    recommendations
+    emptyRecommendations
   );
 
-  // Transforming into entries array in order to sort.
-  // A route appears earlier in the array if it has a higher recommendation.
+  // Transforming into entries array in order to sort. First calculating the
+  // predicted stars.
   recommendations = Object.entries(recommendations);
-  recommendations = recommendations.sort((a, b) => b[1].score - a[1].score);
+  recommendations = recommendations.map(([route, routeObject]) => [
+    route,
+    {
+      ...routeObject,
+      prediction: routeObject.score / routeObject.maxScore,
+    },
+  ]);
+
+  // A route appears earlier in the array if it has a higher recommendation.
+  recommendations = recommendations.sort(
+    (a, b) => b[1].prediction - a[1].prediction
+  );
 
   return recommendations;
 };

@@ -56,7 +56,7 @@ export default (props) => {
                     <a href={routeInfo.url}>{route.slice(0, 52)}</a>
                   </td>
                   <td>{routeInfo.grade}</td>
-                  <td>{routeInfo.score}</td>
+                  <td>{routeInfo.prediction}</td>
                 </tr>
               ))}
             </tbody>

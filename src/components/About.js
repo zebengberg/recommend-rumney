@@ -1,9 +1,10 @@
 import React from "react";
+import Container from "react-bootstrap/Container";
+import ReactMarkdown from "react-markdown";
+import raw from "raw.macro";
 
 export default () => (
-  <>
-    <h1>Algorithm</h1>
-    <p>We use some math to make it work.</p>
-    <p>Then you have new things to climb.</p>
-  </>
+  <Container>
+    <ReactMarkdown source={raw("../README.md")} />
+  </Container>
 );

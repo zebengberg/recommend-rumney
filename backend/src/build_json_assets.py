@@ -1,16 +1,18 @@
 import json
+from collections import defaultdict
 import pandas as pd
 import numpy as np
+from tqdm import tqdm
 from scrape_rumney_routes import stars_file_path
 
-df = pd.read_csv(stars_file_path)
+full_df = pd.read_csv(stars_file_path)
 
 
 def build_user_data():
   """Export list of MP Rumney to file."""
   # TODO: get additional data on each user such as age, sex, ticks, .... ?
-  user_df = df[['route', 'user']]
-  grouped = user_df.groupby(by='user', as_index=False)
+  df = full_df[['route', 'user']]
+  grouped = df.groupby(by='user', as_index=False)
   counts = grouped.count()
   counts = counts.rename(columns={'route': 'n_votes'})
 
@@ -24,8 +26,8 @@ def build_user_data():
 
 def build_route_data():
   """Export list of MP Rumney users to file."""
-  route_df = df[['route', 'user', 'star', 'grade', 'url']]
-  grouped = route_df.groupby(by='route', as_index=False)
+  df = full_df[['route', 'user', 'star', 'grade', 'url']]
+  grouped = df.groupby(by='route', as_index=False)
   stats = grouped.agg({'user': 'count', 'star': 'mean', 'grade': 'first', 'url': 'first'})
   stats = stats.rename(columns={'user': 'n_votes', 'star': 'avg_stars'})
 
@@ -39,8 +41,8 @@ def build_route_data():
 
 def build_route_stats_data():
   """Determine and sort routes according to the variation in star rating."""
-  route_df = df[['route', 'star']]
-  grouped = route_df.groupby(by='route', as_index=False)
+  df = full_df[['route', 'star']]
+  grouped = df.groupby(by='route', as_index=False)
   stats = grouped.agg(['mean', lambda x: np.std(x, ddof=0), 'count'])
 
   # columns are a MultiIndex; flattening them down
@@ -75,8 +77,8 @@ def build_route_stats_data():
 
 def build_user_star_ratings_data():
   """Export MP Rumney user star ratings to file."""
-  user_df = df[['route', 'user', 'star']]
-  grouped = user_df.groupby(by='user')
+  df = full_df[['route', 'user', 'star']]
+  grouped = df.groupby(by='user')
 
   # building dictionary to export as json
   d = {user: dict(zip(group['route'], group['star'])) for user, group in grouped}
@@ -86,9 +88,45 @@ def build_user_star_ratings_data():
   with open(stars_json_path, 'w') as f:
     json.dump(d, f)
 
+def build_slope_one_data():
+  """Build slope-one parameters for pairs r1 -> r2 of routes."""
+  counts = defaultdict(int)
+  deviations = defaultdict(float)
+  df = full_df[['route', 'user', 'star']]
+
+  # building the counts and deviations dictionary
+  users = df.groupby(by='user')
+  for _, group in tqdm(users):
+    zipped = zip(group['route'], group['star'])
+    # itertools.product doesn't work with zipped
+    for route1, star1 in zipped:
+      for route2, star2 in zipped:
+        key = route1 + ' ' +  route2  # concatenate route names to form key
+        counts[key] += 1
+        deviations[key] += star1 - star2
+
+  routes = df['route'].unique()
+  for route1 in routes:
+    for route2 in routes:
+      key = route1 + ' ' +  route2
+      if counts[key]:  # don't want to divide by 0
+        deviations[key] /= counts[key]
+
+  # converting to a vanilla dict in order to export to json
+  deviations = dict(deviations)
+  slope_one_path = '../../src/assets/slope_one_object.json'
+  with open(slope_one_path, 'w') as f:
+    json.dump(deviations, f)
+
+def build_pairs_regressor():
+  """Build regressor parameters for triples (r1, r2) -> r3 of routes."""
+
+
+
 
 if __name__ == '__main__':
   build_user_data()
   build_route_data()
   build_user_star_ratings_data()
   build_route_stats_data()
+  build_slope_one_data()

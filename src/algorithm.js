@@ -1,10 +1,11 @@
-import stars_object from "./assets/stars_object.json";
-import routes_array from "./assets/routes_array.json";
-import std_object from "./assets/std_object.json";
+import starsObject from "./assets/stars_object.json";
+import routesArray from "./assets/routes_array.json";
+import stdObject from "./assets/std_object.json";
+import slopeOneObject from "./assets/slope_one_object.json";
 
 /* Transform array of {route, rating} objects into a single object of
 the form {route: rating} */
-export function routeListToObjectOfRatings(routeList) {
+function routeListToObjectOfRatings(routeList) {
   const validList = routeList.filter((item) => item.route && item.rating);
   return validList.reduce(
     (acc, item) => ({ ...acc, [item.route]: item.rating }),
@@ -26,11 +27,11 @@ function getDistance(user1, user2, keys) {
 /* Return an object of the form {user: {dist, influence}}. */
 function getWeights(preferences) {
   // Considering users who have reviewed routes in preferences.
-  return Object.keys(stars_object).reduce((acc, user) => {
+  return Object.keys(starsObject).reduce((acc, user) => {
     // Influence of the user is the log of the number of routes rated.
-    const influence = Math.log2(Object.keys(stars_object[user]).length);
-    const intersection = getIntersection(stars_object[user], preferences);
-    let dist = getDistance(stars_object[user], preferences, intersection);
+    const influence = Math.log2(Object.keys(starsObject[user]).length);
+    const intersection = getIntersection(starsObject[user], preferences);
+    let dist = getDistance(starsObject[user], preferences, intersection);
     // Penalizing small intersection by adding in the standard deviation of
     // those routes within preferences and outside of user. The exact penality
     // here is somewhat aribtrary.
@@ -39,7 +40,7 @@ function getWeights(preferences) {
     );
 
     const penalty = complementRoutes.reduce(
-      (total, route) => total + std_object[route],
+      (total, route) => total + stdObject[route],
       0
     );
 
@@ -49,21 +50,28 @@ function getWeights(preferences) {
   }, {});
 }
 
+/* Sort an object based on score key. Return type same as Object.entries() .*/
+function sortPredictions(recs) {
+  const asObject = recs.reduce(
+    (acc, cur) => ({ ...acc, [cur.route]: cur }),
+    {}
+  );
+  const asPairs = Object.entries(asObject);
+  return asPairs.sort((a, b) => b[1].prediction - a[1].prediction);
+}
+
 /* Returns an array of route names sorted in reverse by their recommendation. */
-export default (preferences) => {
+function nearestNeighbors(preferences) {
   const weights = getWeights(preferences);
 
-  // Object with key = route name and value = {grade, score} object.
-  const emptyRecommendations = routes_array.reduce(
+  const emptyRecommendations = routesArray.reduce(
     (acc, cur) => ({
       ...acc,
       [cur.route]: { grade: cur.grade, url: cur.url, score: 0, maxScore: 0 },
     }),
     {}
   );
-
-  // Populating the recommendations object.
-  let recommendations = Object.entries(stars_object).reduce(
+  let recommendations = Object.entries(starsObject).reduce(
     (acc, [user, routeObject]) => {
       for (const route in routeObject) {
         const multiplier = (1 / weights[user].dist) * weights[user].influence;
@@ -75,21 +83,35 @@ export default (preferences) => {
     emptyRecommendations
   );
 
-  // Transforming into entries array in order to sort. First calculating the
-  // predicted stars.
-  recommendations = Object.entries(recommendations);
-  recommendations = recommendations.map(([route, routeObject]) => [
-    route,
-    {
-      ...routeObject,
-      prediction: routeObject.score / routeObject.maxScore,
-    },
-  ]);
+  recommendations = Object.entries(recommendations).map(([route, o]) => ({
+    route: route,
+    ...o,
+    prediction: o.maxScore ? o.score / o.maxScore : 0,
+  }));
 
-  // A route appears earlier in the array if it has a higher recommendation.
-  recommendations = recommendations.sort(
-    (a, b) => b[1].prediction - a[1].prediction
-  );
+  return sortPredictions(recommendations);
+}
 
-  return recommendations;
-};
+/* Make recommendation using previously calculated slope one parameters. */
+function slopeOne(preferences) {
+  const route2Array = routesArray;
+  const recommendations = route2Array.map((route2) => {
+    const key = (route1) => route1 + " " + route2.route; // helper function
+    let route1Array = Object.entries(preferences).filter(
+      ([route1, rating]) => key(route1) in slopeOneObject
+    );
+
+    route1Array = route1Array.map(
+      ([route1, rating]) => rating - slopeOneObject[key(route1)]
+    );
+
+    // averaging over all route1
+    const l = route1Array.length;
+    const s = route1Array.reduce((sum, cur) => sum + cur, 0);
+    // could give small bonus to more popular route2 here
+    return l ? { ...route2, prediction: s / l } : { ...route2, prediction: 0 };
+  });
+  return sortPredictions(recommendations);
+}
+
+export { nearestNeighbors, slopeOne, routeListToObjectOfRatings };

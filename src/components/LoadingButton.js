@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Button, Alert, Spinner } from "react-bootstrap";
-import getRecommendations, { routeListToObjectOfRatings } from "../algorithm";
+import {
+  slopeOne,
+  nearestNeighbors,
+  routeListToObjectOfRatings,
+} from "../algorithm";
 import Redirect from "react-router-dom/Redirect";
 
 export default (props) => {
@@ -48,7 +52,7 @@ const LoadingButtonText = (props) => {
     setTimeout(
       () =>
         setRecommendations(
-          getRecommendations(routeListToObjectOfRatings(props.routeList))
+          slopeOne(routeListToObjectOfRatings(props.routeList))
         ),
       50
     );

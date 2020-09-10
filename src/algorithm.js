@@ -61,17 +61,15 @@ function sortPredictions(recs) {
 }
 
 /* Returns an array of route names sorted in reverse by their recommendation. */
-function nearestNeighbors(preferences) {
+function nearestNeighbors(preferences, initialRoutesArray) {
   const weights = getWeights(preferences);
 
-  const emptyRecommendations = routesArray.reduce(
-    (acc, cur) => ({
-      ...acc,
-      [cur.route]: { grade: cur.grade, url: cur.url, score: 0, maxScore: 0 },
-    }),
+  // Object to populate with scores
+  let routesAsObjects = initialRoutesArray.reduce(
+    (acc, cur) => ({ ...acc, [cur.route]: { ...cur, score: 0, maxScore: 0 } }),
     {}
   );
-  let recommendations = Object.entries(starsObject).reduce(
+  routesAsObjects = Object.entries(starsObject).reduce(
     (acc, [user, routeObject]) => {
       for (const route in routeObject) {
         const multiplier = (1 / weights[user].dist) * weights[user].influence;
@@ -80,25 +78,26 @@ function nearestNeighbors(preferences) {
       }
       return acc;
     },
-    emptyRecommendations
+    routesAsObjects
   );
 
-  recommendations = Object.entries(recommendations).map(([route, o]) => ({
-    route: route,
-    ...o,
-    prediction: o.maxScore ? o.score / o.maxScore : 0,
-  }));
-
-  return sortPredictions(recommendations);
+  return Object.values(routesAsObjects).map((object) => {
+    const predictions = {
+      ...object,
+      neighbor_prediction: object.maxScore ? object.score / object.maxScore : 0,
+    };
+    delete predictions.score;
+    delete predictions.maxScore;
+    return predictions;
+  });
 }
 
 /* Make recommendation using previously calculated slope one parameters. */
-function slopeOne(preferences) {
-  const route2Array = routesArray;
-  const recommendations = route2Array.map((route2) => {
+function slopeOne(preferences, initialRoutesArray) {
+  return initialRoutesArray.map((route2) => {
     const key = (route1) => route1 + " " + route2.route; // helper function
     let route1Array = Object.entries(preferences).filter(
-      ([route1, rating]) => key(route1) in slopeOneObject
+      ([route1]) => key(route1) in slopeOneObject
     );
 
     route1Array = route1Array.map(
@@ -109,9 +108,44 @@ function slopeOne(preferences) {
     const l = route1Array.length;
     const s = route1Array.reduce((sum, cur) => sum + cur, 0);
     // could give small bonus to more popular route2 here
-    return l ? { ...route2, prediction: s / l } : { ...route2, prediction: 0 };
+    let prediction = l ? s / l : 0; // avoiding dividing by 0
+    prediction = Math.min(prediction, 4); // clipping
+    prediction = Math.max(prediction, 0); // clipping
+    return { ...route2, slope_one_prediction: prediction };
   });
-  return sortPredictions(recommendations);
 }
 
-export { nearestNeighbors, slopeOne, routeListToObjectOfRatings };
+/* Run all recommendation algorithms. */
+function getRecommendations(preferences) {
+  // Functional approach .... recommendations is getting populated with new
+  // predictions for each algorithm.
+  let recommendations = slopeOne(preferences, routesArray);
+  recommendations = nearestNeighbors(preferences, recommendations);
+
+  // Taking average of all recommendations
+  // TODO: generalize this
+  // Not very functional!
+  recommendations.forEach((object) => {
+    object.avg_prediction =
+      (object.neighbor_prediction + object.slope_one_prediction) / 2;
+  });
+
+  // truncating everything at the hundredths place
+  const truncate = (n) => Math.trunc(n * 100) / 100;
+  recommendations = recommendations.map((object) => {
+    Object.keys(object).forEach((key) => {
+      if (typeof object[key] === "number") {
+        object[key] = truncate(object[key]);
+      }
+    });
+    return object;
+  });
+  return recommendations;
+}
+
+export {
+  getRecommendations,
+  nearestNeighbors,
+  slopeOne,
+  routeListToObjectOfRatings,
+};

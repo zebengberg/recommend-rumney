@@ -130,12 +130,10 @@ function getRecommendations(preferences) {
       (object.neighbor_prediction + object.slope_one_prediction) / 2;
   });
 
-  // truncating everything at the hundredths place
-  const truncate = (n) => Math.trunc(n * 100) / 100;
   recommendations = recommendations.map((object) => {
     Object.keys(object).forEach((key) => {
       if (typeof object[key] === "number") {
-        object[key] = truncate(object[key]);
+        object[key] = object[key].toFixed(2); // toFixed converts to string
       }
     });
     return object;

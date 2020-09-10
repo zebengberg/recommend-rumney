@@ -6,7 +6,7 @@ import routes_array from "../assets/routes_array.json";
 import { Button } from "react-bootstrap";
 
 export default (props) => {
-  const [autocompleteValue, setAutocompleteValue] = useState("");
+  const [autocompleteValue, setAutocompleteValue] = useState(props.value);
   return (
     <Row>
       <Col>

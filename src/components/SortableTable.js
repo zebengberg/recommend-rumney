@@ -1,6 +1,7 @@
 import React from "react";
 import { useTable, useSortBy, useBlockLayout } from "react-table";
 import styled from "styled-components";
+import { Row } from "react-bootstrap";
 
 const Styles = styled.div`
   padding: 1rem;
@@ -103,22 +104,34 @@ function Table({ columns, data }) {
 export default (props) => {
   // TODO: consider using useMemo?
   const columns = [
-    { Header: "Route", accessor: "route" },
-    { Header: "Average MP stars", accessor: "avg_stars", sortDescFirst: true },
+    {
+      Header: "Route",
+      accessor: "route",
+      Cell: ({ row }) => <a href={row.original.url}> {row.values.route} </a>,
+    },
+    {
+      Header: "Average MP stars",
+      accessor: "avg_stars",
+      sortDescFirst: true,
+      sortMethod: (a, b) => Number(a) - Number(b),
+    },
     {
       Header: "Average prediction",
       accessor: "avg_prediction",
       sortDescFirst: true,
+      sortMethod: (a, b) => Number(a) - Number(b),
     },
     {
       Header: "Nearest-neighbors prediction",
       accessor: "neighbor_prediction",
       sortDescFirst: true,
+      sortMethod: (a, b) => Number(a) - Number(b),
     },
     {
       Header: "Slope-one prediction",
       accessor: "slope_one_prediction",
       sortDescFirst: true,
+      sortMethod: (a, b) => Number(a) - Number(b),
     },
     { Header: "Grade", accessor: "grade" },
   ];

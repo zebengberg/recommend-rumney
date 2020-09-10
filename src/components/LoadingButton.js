@@ -60,6 +60,7 @@ const LoadingButtonText = (props) => {
       <Spinner animation="border" variant="info" />
       {recommendations !== null && (
         <Redirect
+          push
           to={{
             pathname: "/recommendation",
             recommendations: recommendations,

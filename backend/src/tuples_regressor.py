@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from surprise import AlgoBase, BaselineOnly, Dataset, Reader, PredictionImpossible
+from surprise import AlgoBase, BaselineOnly, Dataset, Reader, PredictionImpossible, SlopeOne
 from surprise.model_selection import cross_validate
 from scrape_rumney_routes import stars_file_path
 
@@ -20,88 +20,98 @@ class TuplesRegressor(AlgoBase):
     self.m = None
     self.b = None
     self.user_mean = None
+    self.rating_bins = None
+    self.rating_to_index = None
+    self.r_squared = None  # TODO: weight regression predictions by accuracy, say, r^2
 
   def fit(self, trainset):
+    """Override method from AlgoBase."""
     AlgoBase.fit(self, trainset)
 
-    n_items = trainset.n_items
     lower, upper = trainset.rating_scale
-    rating_bins = range(lower, upper + 1)
-    n_rating_bins = len(rating_bins)
-    def rating_to_index(r): return r - lower
+    self.rating_bins = range(lower, upper + 1)
 
-    freq = np.zeros((n_rating_bins, n_rating_bins, n_items, n_items), np.int)
-    m = np.zeros((trainset.n_items, trainset.n_items), np.double)
-    b = np.zeros((trainset.n_items, trainset.n_items), np.double)
+    def rating_to_index(r):
+      """Helper function to convert a rating into an index in the freq array."""
+      return int(r) - lower
+    self.rating_to_index = rating_to_index
+
+    self.freq = np.zeros((len(self.rating_bins), len(
+        self.rating_bins), trainset.n_items, trainset.n_items), np.int)
+    self.m = np.zeros((trainset.n_items, trainset.n_items), np.double)
+    self.b = np.zeros((trainset.n_items, trainset.n_items), np.double)
+    self.r_squared = np.zeros((trainset.n_items, trainset.n_items), np.double)
 
     # Computation of freq array
-    for u, u_ratings in trainset.ur.items():
+    for u_ratings in trainset.ur.values():
       for i, r_ui in u_ratings:
         for j, r_uj in u_ratings:
-          freq[rating_to_index(r_ui), rating_to_index(r_uj), i, j] += 1
+          self.freq[rating_to_index(r_ui), rating_to_index(r_uj), i, j] += 1
 
-    # TODO: consider breaking this into two separate functions....
     # Calculating the linear regression coefficients
-    for i in range(n_items):
-      m[i, i] = 1  # b already 0
-      for j in range(i + 1, n_items):
-        ratings = freq[:, :, i, j]
+    for i in range(trainset.n_items):
+      self.m[i, i] = 1  # b already 0
+      for j in range(i + 1, trainset.n_items):
+        ratings = self.freq[:, :, i, j]
         n = ratings.sum()  # total count
         if n:
-          x_bar = 0
-          y_bar = 0
+          # Calculating means
+          x_bar = np.dot(np.array(self.rating_bins), ratings.sum(axis=1)) / n
+          y_bar = np.dot(np.array(self.rating_bins), ratings.sum(axis=0)) / n
 
-          for r in rating_bins:
-            x_bar = r * ratings[rating_to_index(r), :].sum()
-            y_bar = r * ratings[:, rating_to_index(r)].sum()
-          x_bar /= n
-          y_bar /= n
-
-          m_num = 0
-          m_denom = 0
-          for r1 in rating_bins:
-            for r2 in rating_bins:
-              f = ratings[r1, r2]  # frequency
-              m_num += f * ((r1 - x_bar) * (r2 - y_bar))
-              m_denom += f * (r1 - x_bar) * (r1 - x_bar)
-
-          m[i, j] = m_num / m_denom
-          m[j, i] = 0  # TODO: do this!
-          b[i, j] = y_bar - m[i, j] * x_bar
-          b[j, i] = 0  # and this.
-
-        else:
-          m[i, j] = 0
-          m[j, i] = 0
-
-    self.freq = freq
-    self.m = m
-    self.b = b
-
-    # mean ratings of all users: mu_u
-    self.user_mean = [np.mean([r for (_, r) in trainset.ur[u]])
-                      for u in trainset.all_users()]
+          self.calculate_m_and_b(ratings, x_bar, y_bar, i, j)
 
     return self
 
-  def estimate(self, u, i):
+  def calculate_m_and_b(self, ratings, x_bar, y_bar, i, j):
+    """Calculate m and b with residuals and means."""
+    m_num = 0
+    m_ij_denom = 0
+    m_ji_denom = 0
 
-    if not (self.trainset.knows_user(u) and self.trainset.knows_item(i)):
+    # TODO: redo this with numpy
+    for r_x in self.rating_bins:
+      for r_y in self.rating_bins:
+        f = ratings[self.rating_to_index(
+            r_x), self.rating_to_index(r_y)]  # frequency
+        x_res = r_x - x_bar
+        y_res = r_y - y_bar
+        m_num += f * x_res * y_res
+        m_ij_denom += f * x_res * x_res
+        m_ji_denom += f * y_res * y_res
+
+    if m_ij_denom:
+      self.m[i, j] = m_num / m_ij_denom
+    if m_ji_denom:
+      self.m[j, i] = m_num / m_ji_denom
+
+    # TODO: remove this
+    # self.m[i, j] = 1
+    # self.m[j, i] = 1
+
+    self.b[i, j] = y_bar - self.m[i, j] * x_bar
+    self.b[j, i] = -self.b[i, j]
+
+  def estimate(self, u, j):
+    """Override method from AlgoBase."""
+    if not (self.trainset.knows_user(u) and self.trainset.knows_item(j)):
       raise PredictionImpossible('User and/or item is unknown.')
 
     # Ri: relevant items for i. This is the set of items j rated by u that
     # also have common users with i (i.e. at least one user has rated both
     # i and j).
-    Ri = [j for (j, _) in self.trainset.ur[u] if self.freq[i, j] > 0]
-    est = self.user_mean[u]
+    Ri = [(i, r) for i, r in self.trainset.ur[u]
+          if self.m[i, j] and self.b[i, j]]
+    est = 0
+
     if Ri:
-      est += sum(self.dev[i, j] for j in Ri) / len(Ri)
+      R_pred = [self.m[i, j] * r + self.b[i, j] for i, r in Ri]
+      est = np.mean(R_pred)
 
     return est
 
 
-algo = TuplesRegressor()
-base = BaselineOnly()
-
-cross_validate(algo, data, verbose=True)
-cross_validate(base, data, verbose=True)
+algos = [TuplesRegressor(), BaselineOnly(), SlopeOne()]
+for algo in algos:
+  print('#' * 80 + '\n' * 2 + algo.__class__.__name__)
+  cross_validate(algo, data, verbose=True)

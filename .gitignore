@@ -27,3 +27,6 @@ backend/data
 
 # python cache
 __pycache__
+
+# editor stuff
+.vscode

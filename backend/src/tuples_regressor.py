@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from sklearn.linear_model import LinearRegression as lin_reg
 from surprise import AlgoBase, BaselineOnly, Dataset, Reader, PredictionImpossible, SlopeOne
 from surprise.model_selection import cross_validate
 from scrape_rumney_routes import stars_file_path
@@ -21,76 +22,78 @@ class TuplesRegressor(AlgoBase):
     self.b = None
     self.user_mean = None
     self.rating_bins = None
-    self.rating_to_index = None
-    self.r_squared = None  # TODO: weight regression predictions by accuracy, say, r^2
+
+    self.r_to_i = None
+    self.r_squared = None
+    self.weights = None
+
+  def set_trainset_parameters(self, trainset):
+    """Setting various attributes needed in fit."""
+    lower, upper = trainset.rating_scale
+    rating_bins_gen = range(lower, upper + 1)
+    self.rating_bins = np.array(rating_bins_gen)
+    n_rating_bins = len(rating_bins_gen)
+
+    def r_to_i(r):
+      """Helper function to convert a rating into an index in the freq array."""
+      return int(r) - lower
+    self.r_to_i = r_to_i
+
+    self.freq = np.zeros((n_rating_bins, n_rating_bins,
+                          trainset.n_items, trainset.n_items), np.int)
+    self.m = np.zeros((trainset.n_items, trainset.n_items), np.double)
+    self.b = np.zeros((trainset.n_items, trainset.n_items), np.double)
+    self.r_squared = np.zeros((trainset.n_items, trainset.n_items), np.double)
+    self.weights = np.zeros((trainset.n_items, trainset.n_items), np.double)
 
   def fit(self, trainset):
     """Override method from AlgoBase."""
     AlgoBase.fit(self, trainset)
-
-    lower, upper = trainset.rating_scale
-    self.rating_bins = range(lower, upper + 1)
-
-    def rating_to_index(r):
-      """Helper function to convert a rating into an index in the freq array."""
-      return int(r) - lower
-    self.rating_to_index = rating_to_index
-
-    self.freq = np.zeros((len(self.rating_bins), len(
-        self.rating_bins), trainset.n_items, trainset.n_items), np.int)
-    self.m = np.zeros((trainset.n_items, trainset.n_items), np.double)
-    self.b = np.zeros((trainset.n_items, trainset.n_items), np.double)
-    self.r_squared = np.zeros((trainset.n_items, trainset.n_items), np.double)
+    self.set_trainset_parameters(trainset)
 
     # Computation of freq array
     for u_ratings in trainset.ur.values():
       for i, r_ui in u_ratings:
         for j, r_uj in u_ratings:
-          self.freq[rating_to_index(r_ui), rating_to_index(r_uj), i, j] += 1
+          self.freq[self.r_to_i(r_ui), self.r_to_i(r_uj), i, j] += 1
 
     # Calculating the linear regression coefficients
     for i in range(trainset.n_items):
-      self.m[i, i] = 1  # b already 0
-      for j in range(i + 1, trainset.n_items):
-        ratings = self.freq[:, :, i, j]
-        n = ratings.sum()  # total count
-        if n:
-          # Calculating means
-          x_bar = np.dot(np.array(self.rating_bins), ratings.sum(axis=1)) / n
-          y_bar = np.dot(np.array(self.rating_bins), ratings.sum(axis=0)) / n
+      for j in range(trainset.n_items):
+        freq_ij = self.freq[:, :, i, j]
 
-          self.calculate_m_and_b(ratings, x_bar, y_bar, i, j)
+        n = freq_ij.sum()  # total count
+        if n > 5:  # minimum threshold # TODO: think about this
+          # Calculating means
+          x_bar = np.dot(self.rating_bins, freq_ij.sum(axis=1)) / n
+          y_bar = np.dot(self.rating_bins, freq_ij.sum(axis=0)) / n
+
+          self.calculate_m_and_b(freq_ij, x_bar, y_bar, i, j)
+          self.weights[i, j] = self.r_squared[i, j] * np.sqrt(n)
 
     return self
 
-  def calculate_m_and_b(self, ratings, x_bar, y_bar, i, j):
+  def calculate_m_and_b(self, freq_ij, x_bar, y_bar, i, j):
     """Calculate m and b with residuals and means."""
-    m_num = 0
-    m_ij_denom = 0
-    m_ji_denom = 0
 
-    # TODO: redo this with numpy
-    for r_x in self.rating_bins:
-      for r_y in self.rating_bins:
-        f = ratings[self.rating_to_index(
-            r_x), self.rating_to_index(r_y)]  # frequency
-        x_res = r_x - x_bar
-        y_res = r_y - y_bar
-        m_num += f * x_res * y_res
-        m_ij_denom += f * x_res * x_res
-        m_ji_denom += f * y_res * y_res
+    x_diff = self.rating_bins - x_bar
+    y_diff = self.rating_bins - y_bar
+    xy_prod = np.outer(x_diff, y_diff)
 
-    if m_ij_denom:
-      self.m[i, j] = m_num / m_ij_denom
-    if m_ji_denom:
-      self.m[j, i] = m_num / m_ji_denom
+    m_num = np.sum(freq_ij * xy_prod)
+    m_denom = np.sum(freq_ij.sum(axis=1) * x_diff * x_diff)
+    r_num = np.sum(freq_ij * xy_prod)
+    r_denom = np.sqrt(np.dot(freq_ij.sum(axis=1), x_diff * x_diff)
+                      * np.dot(freq_ij.sum(axis=0), y_diff * y_diff))
 
-    # TODO: remove this
-    # self.m[i, j] = 1
-    # self.m[j, i] = 1
+    if m_denom:
+      self.m[i, j] = m_num / m_denom
+    if r_denom:
+      self.r_squared[i, j] = (r_num / r_denom) ** 2
+
+    self.m[i, j] = 1  # TODO: remove this
 
     self.b[i, j] = y_bar - self.m[i, j] * x_bar
-    self.b[j, i] = -self.b[i, j]
 
   def estimate(self, u, j):
     """Override method from AlgoBase."""
@@ -102,13 +105,14 @@ class TuplesRegressor(AlgoBase):
     # i and j).
     Ri = [(i, r) for i, r in self.trainset.ur[u]
           if self.m[i, j] and self.b[i, j]]
-    est = 0
+    Wi = [self.weights[i, j] for i, _ in Ri]
 
     if Ri:
       R_pred = [self.m[i, j] * r + self.b[i, j] for i, r in Ri]
-      est = np.mean(R_pred)
-
-    return est
+      w = np.sum(Wi)
+      if w:
+        return np.dot(R_pred, Wi) / w
+    return 0
 
 
 algos = [TuplesRegressor(), BaselineOnly(), SlopeOne()]

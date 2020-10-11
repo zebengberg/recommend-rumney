@@ -1,3 +1,5 @@
+"""Scrap MP data and store as CSV files."""
+
 from os import path
 import logging
 from time import sleep
@@ -7,11 +9,12 @@ from lxml import html
 from tqdm import tqdm
 
 
-url_file_path = '../data/rumney_urls.csv'
-stars_file_path = '../data/rumney_stars.csv'
-log_file_path = '../data/scrape_history.log'
+URLS_PATH = '../data/rumney_urls.csv'
+DATA_PATH = '../data/rumney_data.csv'
+LOG_PATH = '../data/scrape_history.log'
 
-logging.basicConfig(filename=log_file_path,
+logger = logging.getLogger(__name__)
+logging.basicConfig(filename=LOG_PATH,
                     level=logging.INFO,
                     format='%(asctime)s %(message)s',
                     datefmt='%m/%d/%Y %H:%M:%S')
@@ -21,9 +24,9 @@ def download_route_urls():
   """Download CSV of Rumney route URLs from MP server."""
 
   # use local cached csv if one exists
-  if path.exists(url_file_path):
+  if path.exists(URLS_PATH):
     print('Using cached version of URL data.')
-    print(f'Delete {url_file_path} to download new data.')
+    print(f'Delete {URLS_PATH} to download new data.')
 
   else:
     # url taken from MP route-finder feature
@@ -35,13 +38,13 @@ def download_route_urls():
            '&is_sport_climb=1&stars=0&pitches=0&sort1=area&sort2=rating')
     r = requests.get(url)
 
-    with open(url_file_path, 'wb') as f:
+    with open(URLS_PATH, 'wb') as f:
       f.write(r.content)
 
     # counting total number of lines in downloaded CSV and logging count
-    num_lines = sum(1 for line in open(url_file_path))
+    num_lines = sum(1 for line in open(URLS_PATH))
     logging.info('Downloaded route URL csv with %s lines from MP.', num_lines)
-    logging.info('Data written to: %s', url_file_path.split('/')[-1])
+    logging.info('Data written to: %s', URLS_PATH.split('/')[-1])
 
 
 def scrape_url(url):
@@ -57,14 +60,15 @@ def scrape_url(url):
   stars = []
   for user, star in table.getchildren():  # user, star are <td> elements
     users.append(user.getchildren()[0].text)  # text of an <a> element
-    stars.append(len(star.getchildren()[1].getchildren())) # counting <img>
+    stars.append(len(star.getchildren()[1].getchildren()))  # counting <img>
 
   return users, stars
+
 
 def build_dataframe():
   """Save joining table in which each ordered pair (route, user) is a row."""
 
-  url_df = pd.read_csv(url_file_path)
+  url_df = pd.read_csv(URLS_PATH)
   url_df = url_df[url_df['Avg Stars'] != -1]  # ignoring routes without stars
   routes = list(url_df['Route'])
   urls = list(url_df['URL'])
@@ -81,12 +85,12 @@ def build_dataframe():
       rows.append({'route': route, 'user': user, 'star': star,
                    'grade': rating, 'url': url})
 
-
   logging.info('Scraped %s route-user-star records from MP.', len(rows))
 
   df = pd.DataFrame(rows)
-  df.to_csv(stars_file_path, index=False)
-  logging.info('Data written to: %s \n\n', stars_file_path.split('/')[-1])
+  df.to_csv(DATA_PATH, index=False)
+  logging.info('Data written to: %s \n\n', DATA_PATH.split('/')[-1])
+  logging.shutdown()
 
 
 if __name__ == '__main__':

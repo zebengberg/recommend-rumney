@@ -1,16 +1,17 @@
+"""Build json data after MP scrap."""
+
 import json
 from collections import defaultdict
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
-from scrape_rumney_routes import stars_file_path
+from scrape_rumney_routes import DATA_PATH
 
-full_df = pd.read_csv(stars_file_path)
+full_df = pd.read_csv(DATA_PATH)
 
 
 def build_user_data():
   """Export list of MP Rumney to file."""
-  # TODO: get additional data on each user such as age, sex, ticks, .... ?
   df = full_df[['route', 'user']]
   grouped = df.groupby(by='user', as_index=False)
   counts = grouped.count()
@@ -28,7 +29,8 @@ def build_route_data():
   """Export list of MP Rumney users to file."""
   df = full_df[['route', 'user', 'star', 'grade', 'url']]
   grouped = df.groupby(by='route', as_index=False)
-  stats = grouped.agg({'user': 'count', 'star': 'mean', 'grade': 'first', 'url': 'first'})
+  stats = grouped.agg({'user': 'count', 'star': 'mean',
+                       'grade': 'first', 'url': 'first'})
   stats = stats.rename(columns={'user': 'n_votes', 'star': 'avg_stars'})
 
   # sorting routes by their number of votes
@@ -51,7 +53,8 @@ def build_route_stats_data():
 
   # weight the standard deviation by some increasing function of route counts
   # this weighting will avoid routes with few but varied star reviews
-  weight = lambda x: x ** 0.1
+  def weight(x):
+    return x ** 0.1
   stats['star_weight'] = stats['star_std'] * weight(stats['star_count'])
 
   # don't want to include very obscure routes
@@ -74,19 +77,20 @@ def build_route_stats_data():
     json.dump(d, f)
 
 
-
 def build_user_star_ratings_data():
   """Export MP Rumney user star ratings to file."""
   df = full_df[['route', 'user', 'star']]
   grouped = df.groupby(by='user')
 
   # building dictionary to export as json
-  d = {user: dict(zip(group['route'], group['star'])) for user, group in grouped}
+  d = {user: dict(zip(group['route'], group['star']))
+       for user, group in grouped}
 
   # exporting
   stars_json_path = '../../src/assets/stars_object.json'
   with open(stars_json_path, 'w') as f:
     json.dump(d, f)
+
 
 def build_slope_one_data():
   """Build slope-one parameters for pairs r1 -> r2 of routes."""
@@ -101,14 +105,14 @@ def build_slope_one_data():
     # itertools.product doesn't work with zipped
     for route1, star1 in zipped:
       for route2, star2 in zipped:
-        key = route1 + ' ' +  route2  # concatenate route names to form key
+        key = route1 + ' ' + route2  # concatenate route names to form key
         counts[key] += 1
         deviations[key] += star1 - star2
 
   routes = df['route'].unique()
   for route1 in routes:
     for route2 in routes:
-      key = route1 + ' ' +  route2
+      key = route1 + ' ' + route2
       if counts[key]:  # don't want to divide by 0
         deviations[key] /= counts[key]
 
@@ -118,10 +122,9 @@ def build_slope_one_data():
   with open(slope_one_path, 'w') as f:
     json.dump(deviations, f)
 
+
 def build_pairs_regressor():
   """Build regressor parameters for triples (r1, r2) -> r3 of routes."""
-
-
 
 
 if __name__ == '__main__':

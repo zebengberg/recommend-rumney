@@ -23,9 +23,12 @@ export default () => {
           tried??
         </p>
         <p>
-          <Link to="/about">
-            <Button variant="info">How it works</Button>
-          </Link>
+          <Button
+            variant="info"
+            href="https://github.com/zebengberg/recommend-rumney/blob/master/README.md"
+          >
+            How it works
+          </Button>
         </p>
       </Jumbotron>
 

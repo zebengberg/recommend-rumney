@@ -1,23 +1,23 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "dd7e524b8f9631cfe8bcd95a8055630a",
+    "revision": "cc19d1445b4ae63786324a7cad1ee2b9",
     "url": "/recommend-rumney/index.html"
   },
   {
-    "revision": "8df9911685023b653442",
+    "revision": "bc655653c1139c2d990e",
     "url": "/recommend-rumney/static/css/2.de8890bb.chunk.css"
   },
   {
-    "revision": "8df9911685023b653442",
-    "url": "/recommend-rumney/static/js/2.25da214b.chunk.js"
+    "revision": "bc655653c1139c2d990e",
+    "url": "/recommend-rumney/static/js/2.c519a114.chunk.js"
   },
   {
-    "revision": "8ebb70227fec3b61ad3af3d99ebe8940",
-    "url": "/recommend-rumney/static/js/2.25da214b.chunk.js.LICENSE.txt"
+    "revision": "3453b8997016469371284a28c0e873e2",
+    "url": "/recommend-rumney/static/js/2.c519a114.chunk.js.LICENSE.txt"
   },
   {
-    "revision": "3feaa6a4dc910940decc",
-    "url": "/recommend-rumney/static/js/main.01282bfe.chunk.js"
+    "revision": "4428f560ecbe322dcceb",
+    "url": "/recommend-rumney/static/js/main.531e0824.chunk.js"
   },
   {
     "revision": "dd0616c52f637b8b5362",

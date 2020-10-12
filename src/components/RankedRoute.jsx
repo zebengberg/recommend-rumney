@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { Row, Col } from "react-bootstrap";
+import { Button } from "react-bootstrap";
+
 import Autocomplete from "./Autocomplete";
 import Stars from "./Stars";
-import routes_array from "../assets/routes_array.json";
-import { Button } from "react-bootstrap";
+import routes_array from "../assets/data/routes_array.json";
 
 export default (props) => {
   const [autocompleteValue, setAutocompleteValue] = useState(props.value);

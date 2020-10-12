@@ -1,7 +1,6 @@
 import React from "react";
 import { useTable, useSortBy, useBlockLayout } from "react-table";
 import styled from "styled-components";
-import { Row } from "react-bootstrap";
 
 const Styles = styled.div`
   padding: 1rem;

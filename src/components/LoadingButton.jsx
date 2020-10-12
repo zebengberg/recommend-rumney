@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Button, Alert, Spinner } from "react-bootstrap";
-import { getRecommendations, routeListToObjectOfRatings } from "../algorithm";
+import { getRecommendations } from "../algorithm";
 import Redirect from "react-router-dom/Redirect";
 
 export default (props) => {
@@ -21,7 +21,7 @@ export default (props) => {
           <LoadingButtonText
             allowSubmit={props.allowSubmit}
             submitButtonClicked={props.submitButtonClicked}
-            routeList={props.routeList}
+            ratingsObject={props.ratingsObject}
             setRecommendations={props.setRecommendations}
           />
         ) : (
@@ -32,8 +32,7 @@ export default (props) => {
         <Alert variant="warning" style={{ marginTop: 50 }}>
           You must complete preferences for {props.minRequired} distinct routes
           to continue. So far you have only completed preferences for{" "}
-          {Object.keys(routeListToObjectOfRatings(props.routeList)).length}{" "}
-          distinct routes.
+          {Object.keys(props.ratingsObject).length} distinct routes.
         </Alert>
       )}
     </>
@@ -46,13 +45,10 @@ const LoadingButtonText = (props) => {
   useEffect(() => {
     // Timeout guarantees "Calculating..." will render before recommendations calculated
     setTimeout(
-      () =>
-        setRecommendations(
-          getRecommendations(routeListToObjectOfRatings(props.routeList))
-        ),
+      () => setRecommendations(getRecommendations(props.ratingsObject)),
       50
     );
-  }, [props.routeList]);
+  }, [props.ratingsObject]);
 
   return (
     <>

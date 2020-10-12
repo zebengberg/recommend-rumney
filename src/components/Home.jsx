@@ -1,15 +1,22 @@
 import React, { useState } from "react";
-import { Jumbotron, Button, Row, Container, Col } from "react-bootstrap";
-import NavBar from "./NavBar";
 import Link from "react-router-dom/Link";
+import { Jumbotron, Button, Row, Container, Col } from "react-bootstrap";
+
+import NavBar from "./NavBar";
 import Autocomplete from "./Autocomplete";
-import users_array from "../assets/users_array.json";
-import fly from "../assets/fly.jpg";
+import LoadingButton from "./LoadingButton";
+
+import users_array from "../assets/data/users_array.json";
+import stars_object from "../assets/data/stars_object.json";
+import fly from "../assets/img/fly.jpg";
 
 export default () => {
   const [isContributor, setIsContributor] = useState(null);
   const [userValue, setUserValue] = useState("");
   const [userObject, setUserObject] = useState({});
+  const [submitButtonClicked, setSubmitButtonClicked] = useState(false);
+  console.log(userObject);
+  console.log(userValue);
 
   return (
     <>
@@ -43,31 +50,48 @@ export default () => {
       </Container>
 
       {isContributor === true && (
-        <Container style={{ paddingBottom: "20rem" }}>
-          <p>Find your username below.</p>
-          <Autocomplete
-            value={userValue}
-            setValue={setUserValue}
-            setItem={setUserObject} // placeholder; could use this to grab data on user
-            items={users_array}
-            itemKey={"user"}
-            sortKey={"n_votes"}
-          />
-          {userObject.n_votes !== undefined && (
-            <p>
-              Hello <b>{userValue}</b>! You have given star ratings to{" "}
-              <b>{userObject.n_votes}</b> routes in the Mountain Project Rumney
-              database.
-            </p>
-          )}
+        <Container>
+          <Row>
+            <Col style={{ paddingBottom: "20rem" }}>
+              <p>Find your username below.</p>
+              <Autocomplete
+                value={userValue}
+                setValue={setUserValue}
+                setItem={setUserObject} // placeholder; could use this to grab data on user
+                items={users_array}
+                itemKey={"user"}
+                sortKey={"n_votes"}
+              />
+            </Col>
+            <Col>
+              {userObject.n_votes !== undefined && (
+                <p>
+                  Hello <b>{userValue}</b>! You have contributed ratings to{" "}
+                  <b>{userObject.n_votes}</b> routes in the Mountain Project
+                  Rumney database.
+                </p>
+              )}
+            </Col>
+            <Col>
+              {userObject.n_votes !== undefined && (
+                <LoadingButton
+                  ratingsObject={stars_object[userValue]}
+                  allowSubmit={true}
+                  submitButtonClicked={submitButtonClicked}
+                  setSubmitButtonClicked={setSubmitButtonClicked}
+                  minRequired={null}
+                />
+              )}
+            </Col>
+          </Row>
         </Container>
       )}
 
       {isContributor === false && (
-        <Container style={{ margin: "5em" }}>
+        <Container style={{ margin: "3em" }}>
           <Link to="/preferences">
             <Button size="lg" variant="success">
-              Build your custom preferences
+              Build custom preferences
             </Button>
           </Link>
         </Container>

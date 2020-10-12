@@ -1,7 +1,7 @@
-import starsObject from "./assets/stars_object.json";
-import routesArray from "./assets/routes_array.json";
-import stdObject from "./assets/std_object.json";
-import slopeOneObject from "./assets/slope_one_object.json";
+import starsObject from "./assets/data/stars_object.json";
+import routesArray from "./assets/data/routes_array.json";
+import stdObject from "./assets/data/std_object.json";
+import slopeOneObject from "./assets/data/slope_one_object.json";
 
 /* Transform array of {route, rating} objects into a single object of
 the form {route: rating} */

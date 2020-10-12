@@ -72,7 +72,7 @@ export default () => {
         ))}
 
         <LoadingButton
-          routeList={routeList}
+          ratingsObject={routeListToObjectOfRatings(routeList)}
           allowSubmit={allowSubmit}
           submitButtonClicked={submitButtonClicked}
           setSubmitButtonClicked={setSubmitButtonClicked}

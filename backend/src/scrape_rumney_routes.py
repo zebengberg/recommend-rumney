@@ -15,10 +15,14 @@ DATA_PATH = '../data/rumney_data.csv'
 METADATA_PATH = '../data/rumney_metadata.json'
 LOG_PATH = '../data/scrape_history.log'
 
-logging.basicConfig(filename=LOG_PATH,
-                    level=logging.DEBUG,
-                    format='%(asctime)s %(message)s',
-                    datefmt='%m/%d/%Y %H:%M:%S')
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+fh = logging.FileHandler(LOG_PATH)
+fh.setLevel(logging.INFO)
+formatter = logging.Formatter(fmt='%(asctime)s %(message)s',
+                              datefmt='%m/%d/%Y %H:%M:%S')
+fh.setFormatter(formatter)
+logger.addHandler(fh)
 
 
 def download_route_urls():
@@ -43,8 +47,8 @@ def download_route_urls():
 
     # counting total number of lines in downloaded CSV and logging count
     num_lines = sum(1 for line in open(URLS_PATH))
-    logging.debug('Downloaded route URL csv with %s lines from MP.', num_lines)
-    logging.debug('Data written to: %s', URLS_PATH.split('/')[-1])
+    logger.info('Downloaded route URL csv with %s lines from MP.', num_lines)
+    logger.info('Data written to: %s', URLS_PATH.split('/')[-1])
 
 
 def scrape_stats_url(url):
@@ -126,10 +130,10 @@ def build_ratings_dataframe():
     for user, rating in zip(users, ratings):
       rows.append({'route': route, 'user': user, 'rating': rating})
 
-  logging.debug('Scraped %s route-user-rating records from MP.', len(rows))
+  logger.info('Scraped %s route-user-rating records from MP.', len(rows))
   df = pd.DataFrame(rows)
   df.to_csv(DATA_PATH, index=False)
-  logging.debug('Data written to: %s \n\n', DATA_PATH.split('/')[-1])
+  logger.info('Data written to: %s \n\n', DATA_PATH.split('/')[-1])
 
 
 def build_metadata_json():
@@ -148,14 +152,14 @@ def build_metadata_json():
     # append gathered data to dict
     d[route] = {'url': url, 'grade': grade, 'text': text}
 
-  logging.debug('Scraped %s comments from MP.', total_n_comments)
+  logger.info('Scraped %s comments from MP.', total_n_comments)
   with open(METADATA_PATH, 'w') as f:
     json.dump(d, f)
-  logging.debug('Metadata written to: %s \n\n', METADATA_PATH.split('/')[-1])
+  logger.info('Metadata written to: %s \n\n', METADATA_PATH.split('/')[-1])
 
 
 if __name__ == '__main__':
   download_route_urls()
   build_ratings_dataframe()
-  # build_metadata_json()
+  build_metadata_json()
   logging.shutdown()

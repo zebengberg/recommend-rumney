@@ -138,7 +138,7 @@ export default (props) => {
 
   return (
     <Styles>
-      <Table columns={columns} data={data} />;
+      <Table columns={columns} data={data} />
     </Styles>
   );
 };

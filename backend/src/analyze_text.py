@@ -1,4 +1,5 @@
-"""Analyze text data scraped from MP."""
+"""Analyze text data scraped from MP. This module includes a number of utility
+functions for exploring and understanding the MPT text data."""
 
 import json
 from collections import defaultdict
@@ -58,10 +59,11 @@ def extract_climbing_words():
   for d in data.values():
     text = d['text']
     del d['text']
-    d['counts'] = {word: text.count(word) for word in substrings}
-    # merging foot - feet
-    d['counts']['foot'] += d['counts']['feet']
-    del d['counts']['feet']
     d['text_length'] = len(text)
+
+    d['word_counts'] = {word: text.count(word) for word in substrings}
+    # merging foot - feet
+    d['word_counts']['foot'] += d['word_counts']['feet']
+    del d['word_counts']['feet']
 
   return data

@@ -2,29 +2,32 @@
 
 import surprise
 import pandas as pd
-from scrape_rumney_routes import stars_file_path
+from scrape_rumney_routes import DATA_PATH
 
-df = pd.read_csv(stars_file_path)
+df = pd.read_csv(DATA_PATH)
 
 
 def tests():
   """Test built-in surprise algorithms."""
-  stars = df[['user', 'route', 'star']]
-  reader = surprise.Reader(rating_scale=(1, 4))
-  dataset = surprise.Dataset.load_from_df(stars, reader)
+  reader = surprise.Reader(rating_scale=(0, 4))
+  dataset = surprise.Dataset.load_from_df(df, reader)
   algorithms = [surprise.NormalPredictor(),
-                surprise.BaselineOnly(),
-                surprise.KNNBasic(),
-                surprise.KNNWithMeans(),
-                surprise.KNNWithZScore(),
-                surprise.KNNBaseline(),
-                surprise.SVD(),
-                surprise.NMF(),
+                surprise.BaselineOnly(verbose=False),
+                surprise.KNNBasic(verbose=False),
+                surprise.KNNWithMeans(verbose=False),
+                surprise.KNNWithZScore(verbose=False),
+                surprise.KNNBaseline(verbose=False),
+                surprise.SVD(verbose=False),
+                surprise.NMF(verbose=False),
                 surprise.SlopeOne(),
-                surprise.CoClustering()]
+                surprise.CoClustering(verbose=False)]
   for algo in algorithms:
     print(f'With {algo.__class__.__name__} algorithm:')
-    surprise.model_selection.cross_validate(algo, dataset, verbose=True)
+    d = surprise.model_selection.cross_validate(algo, dataset, verbose=False)
+    scores = zip(d['test_rmse'], d['test_mae'])
+    print('rmse \t\t\t mae')
+    for s1, s2 in scores:
+      print(f'{round(s1, 4)} \t\t\t {round(s2, 4)}')
     print('\n' + '#'*80 + '\n')
 
 

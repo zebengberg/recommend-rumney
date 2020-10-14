@@ -12,7 +12,7 @@ from tqdm import tqdm
 
 URLS_PATH = '../data/rumney_urls.csv'
 DATA_PATH = '../data/rumney_data.csv'
-METADATA_PATH = '../data/rumney_metadata.json'
+ROUTE_DATA_PATH = '../data/rumney_route_data.json'
 LOG_PATH = '../data/scrape_history.log'
 
 logger = logging.getLogger(__name__)
@@ -136,7 +136,7 @@ def build_ratings_dataframe():
   logger.info('Data written to: %s \n\n', DATA_PATH.split('/')[-1])
 
 
-def build_metadata_json():
+def build_route_data_json():
   """Save json file holding URL, grade, and text data for each route."""
   print('Scraping route descriptions and comments.')
 
@@ -153,13 +153,13 @@ def build_metadata_json():
     d[route] = {'url': url, 'grade': grade, 'text': text}
 
   logger.info('Scraped %s comments from MP.', total_n_comments)
-  with open(METADATA_PATH, 'w') as f:
+  with open(ROUTE_DATA_PATH, 'w') as f:
     json.dump(d, f)
-  logger.info('Metadata written to: %s \n\n', METADATA_PATH.split('/')[-1])
+  logger.info('Metadata written to: %s \n\n', ROUTE_DATA_PATH.split('/')[-1])
 
 
 if __name__ == '__main__':
   download_route_urls()
   build_ratings_dataframe()
-  build_metadata_json()
+  build_route_data_json()
   logging.shutdown()

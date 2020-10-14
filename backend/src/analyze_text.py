@@ -3,11 +3,14 @@ functions for exploring and understanding the MPT text data."""
 
 import json
 from collections import defaultdict
-from scrape_rumney_routes import METADATA_PATH
+from scrape_rumney_routes import ROUTE_DATA_PATH
 
 
-with open(METADATA_PATH) as f:
+with open(ROUTE_DATA_PATH) as f:
   data = json.load(f)
+
+with open('handcrafted_words.txt') as f:
+  climbing_words = [line.strip() for line in f]
 
 
 def get_all_text():
@@ -50,19 +53,12 @@ def print_most_commented():
 
 def extract_climbing_words():
   """Extract instances of hand-crafted climbing words from data."""
-  holds = ['crimp', 'slope', 'jug', 'pocket', 'foot', 'feet', 'undercling']
-  features = ['chimney', 'corner', 'arete', 'steep', 'slab', 'roof', 'face']
-  styles = ['classic', 'awkward', 'trad']
-  movements = ['sequence', 'reach', 'power', 'boulder']
-  substrings = holds + features + styles + movements
-
   for d in data.values():
     text = d['text']
-    del d['text']
     d['text_length'] = len(text)
 
-    d['word_counts'] = {word: text.count(word) for word in substrings}
-    # merging foot - feet
+    d['word_counts'] = {word: text.count(word) for word in climbing_words}
+    # merging foot  with feet
     d['word_counts']['foot'] += d['word_counts']['feet']
     del d['word_counts']['feet']
 

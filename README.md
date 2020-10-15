@@ -6,6 +6,8 @@
 
 We take a [collaborative filtering](https://en.wikipedia.org/wiki/Collaborative_filtering) approach using [data](#data) from Mountain Project.
 
+Terminology: user, item, rating
+
 ### Collaborative filtering
 
 Why collaborative filtering? routes <---> users duality.
@@ -20,15 +22,19 @@ network of users, nearest neighbors
 
 ### Content-based filtering
 
- Why not content-based filtering? Future work! Make a hybrid model.
- For each route, we have:
+A content-based filtering algorithm considers _intrinsic_ properties of an item to measure similarity. The underlying idea of this approach is that a user prefers an item based on the properties it possess, and will therefore prefer other items with similar properties. In a content-based system, user ratings are unnecessary; indeed, only properties of the underlying item are relevant as opposed to users' perception of the item.
 
-- grade
-- written description
-- popularity
-- comments
+In addition to user ratings, each Mountain Project route also includes
 
-From written description and comments, we can extract certain keywords.
+- a grade
+- a written description
+- user contributed comments.
+
+While the inclusion of user contributed comments may go against the spirit of a purely content-based system, we use them here as a way of detecting underlying properties of the route in question.
+
+We approach route-similarity content-based filtering in two steps. First, for each Mountain Project route, we extract the description and comment text. We count instances of [handcrafted climbing keywords](backend/src/handcrafted_words.txt) within this text, thereby giving each route a set of inherent properties. To compare two routes, we can simply take a dot product between the vectors associated to these word counts. Second, we deem two routes to be similar if they have a close climbing grade. Finally, these two notions of similarity are aggregated to give a composite similarity score between routes.
+
+The module [`content_based`](backend/src/content_based.py) implements this.
 
 ## Data
 
@@ -45,19 +51,21 @@ Mountain Project servers provide user-generated data through dynamically generat
 
 ### Backend
 
-### React subtleties
+A number of [python modules](backend/src) scrape, extract, and process data from Mountain Project. The processed data is stored is json format, which in turn is accessed by the react web app. Gathering the data from scratch requires running two python files.
 
+```sh
+python scrape_rumney_routes.py
+python build_json_assets.py
+```
+
+surprise?
+
+### React
 
 Built with `create-react-app` and `React Bootstrap`.
 
-CRA stuff
-markdown
-loading button
+The most challenging part of the react development process was implementing a loading button to be rendered to the user while recommendations were computed. If this project included a dynamic web-server component, the recommendation calculation would likely occur server-side, and an `async`-`await` pattern could be used to retrieve the result. Instead, this web app is static and all computation (apart from the initial python processing) is done inside the browser.
 
-### Source
-
-The source can be found on [github](https://github.com/zebengberg/recommend-rumney).
-
-### License
+## License
 
 MIT

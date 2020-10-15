@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { Container, Alert } from "react-bootstrap";
 import Jumbotron from "react-bootstrap/Jumbotron";
 import Link from "react-router-dom/Link";
-
 import NavBar from "./NavBar";
 import Slider, { gradeToNumber, gradeList } from "./Slider";
 import SortableTable from "./SortableTable";

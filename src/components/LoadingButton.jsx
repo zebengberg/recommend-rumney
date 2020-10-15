@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Button, Alert, Spinner } from "react-bootstrap";
-import { getRecommendations } from "../algorithm";
 import Redirect from "react-router-dom/Redirect";
+import { getRecommendations } from "../utils/utils";
 
 export default (props) => {
   return (

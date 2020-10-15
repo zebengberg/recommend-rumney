@@ -3,7 +3,7 @@ import { Container, Row, Button } from "react-bootstrap";
 import NavBar from "./NavBar";
 import RankedRoute from "./RankedRoute";
 import LoadingButton from "./LoadingButton";
-import { routeListToObjectOfRatings } from "../algorithm";
+import { routeListToObjectOfRatings } from "../utils/utils";
 
 // Minimum number of preferences before allowing submission
 const minRequired = 1;
@@ -41,9 +41,11 @@ export default () => {
         <h1>Preferences</h1>
         <Row style={{ marginBottom: 50 }}>
           <p>
-            In order to get a recommendation, you need to provide the algorithm
-            some of your current preferences. Enter several Rumney routes for
-            which you have strong opinions (positive or negative) below.
+            In order to get a good recommendation, you need to provide the
+            algorithm some of your existing preferences. Enter several Rumney
+            routes for which you have strong opinions (positive or negative)
+            below. To get the best recommendation, enter several of your
+            favorite Rumney routes and give them four stars.
           </p>
 
           <Button onClick={() => setRouteList([{ route: "", rating: 0 }])}>

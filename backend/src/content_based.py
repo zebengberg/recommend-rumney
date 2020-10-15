@@ -53,7 +53,7 @@ def score_grade_similarities(route1, route2):
   g2 = grade_to_number(data[route2]['grade'])
   if abs(g2 - g1) > 3:
     return 0
-  return 1 - abs(g2 - g1) / 4
+  return 1 - abs(g2 - g1) / 8
 
 
 def dot_words(route1, route2):

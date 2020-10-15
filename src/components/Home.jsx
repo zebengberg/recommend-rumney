@@ -1,22 +1,21 @@
 import React, { useState } from "react";
 import Link from "react-router-dom/Link";
 import { Jumbotron, Button, Row, Container, Col } from "react-bootstrap";
-
 import NavBar from "./NavBar";
 import Autocomplete from "./Autocomplete";
 import LoadingButton from "./LoadingButton";
-
-import users_array from "../assets/data/users_array.json";
-import stars_object from "../assets/data/stars_object.json";
+import user_data_array from "../assets/data/user_data_array.json";
+import user_rating_object from "../assets/data/user_rating_object.json";
 import fly from "../assets/img/fly.jpg";
 
+import test from "../utils/testAlgorithm";
+
 export default () => {
+  test();
   const [isContributor, setIsContributor] = useState(null);
   const [userValue, setUserValue] = useState("");
   const [userObject, setUserObject] = useState({});
   const [submitButtonClicked, setSubmitButtonClicked] = useState(false);
-  console.log(userObject);
-  console.log(userValue);
 
   return (
     <>
@@ -58,7 +57,7 @@ export default () => {
                 value={userValue}
                 setValue={setUserValue}
                 setItem={setUserObject} // placeholder; could use this to grab data on user
-                items={users_array}
+                items={user_data_array}
                 itemKey={"user"}
                 sortKey={"n_votes"}
               />
@@ -75,7 +74,7 @@ export default () => {
             <Col>
               {userObject.n_votes !== undefined && (
                 <LoadingButton
-                  ratingsObject={stars_object[userValue]}
+                  ratingsObject={user_rating_object[userValue]}
                   allowSubmit={true}
                   submitButtonClicked={submitButtonClicked}
                   setSubmitButtonClicked={setSubmitButtonClicked}

@@ -11,7 +11,7 @@ from analyze_text import extract_climbing_words
 from content_based import calculate_content_similarities
 
 
-ROUTE_DATA_PATH = '../../src/assets/data/route_data_object.json'
+ROUTE_DATA_PATH = '../../src/assets/data/route_data_array.json'
 USER_DATA_PATH = '../../src/assets/data/user_data_array.json'
 USER_RATING_PATH = '../../src/assets/data/user_rating_object.json'
 SLOPE_ONE_PATH = '../../src/assets/data/slope_one_object.json'
@@ -42,9 +42,10 @@ def build_route_data():
       data[route][key] = stat[key]
     # deleting all text
     del data[route]['text']
+    data[route]['route'] = route
 
   with open(ROUTE_DATA_PATH, 'w') as f:
-    json.dump(data, f)
+    json.dump(list(data.values()), f)
 
 
 def build_user_data():

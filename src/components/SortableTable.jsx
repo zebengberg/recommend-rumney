@@ -45,7 +45,7 @@ function Table({ columns, data }) {
       initialState: {
         sortBy: [
           {
-            id: "avg_prediction",
+            id: "avgPrediction",
             desc: true,
           },
         ],
@@ -109,26 +109,32 @@ export default (props) => {
       Cell: ({ row }) => <a href={row.original.url}> {row.values.route} </a>,
     },
     {
-      Header: "Average MP stars",
-      accessor: "avg_stars",
+      Header: "Average MP rating",
+      accessor: "avg_rating",
       sortDescFirst: true,
       sortMethod: (a, b) => Number(a) - Number(b),
     },
     {
       Header: "Average prediction",
-      accessor: "avg_prediction",
+      accessor: "avgPrediction",
       sortDescFirst: true,
       sortMethod: (a, b) => Number(a) - Number(b),
     },
     {
       Header: "Nearest-neighbors prediction",
-      accessor: "neighbor_prediction",
+      accessor: "neighborPrediction",
       sortDescFirst: true,
       sortMethod: (a, b) => Number(a) - Number(b),
     },
     {
       Header: "Slope-one prediction",
-      accessor: "slope_one_prediction",
+      accessor: "slopeOnePrediction",
+      sortDescFirst: true,
+      sortMethod: (a, b) => Number(a) - Number(b),
+    },
+    {
+      Header: "Content prediction",
+      accessor: "contentPrediction",
       sortDescFirst: true,
       sortMethod: (a, b) => Number(a) - Number(b),
     },

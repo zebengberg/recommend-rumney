@@ -8,12 +8,16 @@ import requests
 import pandas as pd
 from lxml import html
 from tqdm import tqdm
+from redacted import strip_id
 
 
 URLS_PATH = '../data/rumney_urls.csv'
 DATA_PATH = '../data/rumney_data.csv'
 ROUTE_DATA_PATH = '../data/rumney_route_data.json'
 LOG_PATH = '../data/scrape_history.log'
+
+with open('redacted_fixes.json') as file:
+  fixes = json.load(file)
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -106,10 +110,20 @@ def process_url(url):
   return stats_url, printer_url
 
 
-def read_url_csv():
-  """Read CSV of MP URLs and remove routes without any ratings."""
+def process_url_csv():
+  """Read CSV of MP URLs, remove routes without ratings, deal with redacted names."""
+
   url_df = pd.read_csv(URLS_PATH)
   url_df = url_df[url_df['Avg Stars'] != -1]  # ignoring routes without ratings
+
+  # dealing with redacted route names
+  def fix_row(row):
+    if row['Route'] == 'Redacted':
+      route_id = strip_id(row['URL'])
+      return fixes[route_id]
+    return row['Route']
+  url_df['Route'] = url_df.apply(fix_row, axis=1)
+
   routes = list(url_df['Route'])
   urls = list(url_df['URL'])
   grades = list(url_df['Rating'])
@@ -120,7 +134,7 @@ def build_ratings_dataframe():
   """Save joining table in which each ordered pair (route, user) is a row."""
   print('Scraping route-user-rating data.')
 
-  data = read_url_csv()
+  data = process_url_csv()
   rows = []
   for route, url in zip(tqdm(data['routes']), data['urls']):
     stats_url, _ = process_url(url)
@@ -140,7 +154,7 @@ def build_route_data_json():
   """Save json file holding URL, grade, and text data for each route."""
   print('Scraping route descriptions and comments.')
 
-  data = read_url_csv()
+  data = process_url_csv()
   d = {}
   total_n_comments = 0
   for route, url, grade in zip(tqdm(data['routes']), data['urls'], data['grades']):

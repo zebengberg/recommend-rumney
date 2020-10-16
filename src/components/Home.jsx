@@ -7,15 +7,17 @@ import LoadingButton from "./LoadingButton";
 import user_data_array from "../assets/data/user_data_array.json";
 import user_rating_object from "../assets/data/user_rating_object.json";
 import fly from "../assets/img/fly.jpg";
-
-import test from "../utils/testAlgorithm";
+import urban1 from "../assets/img/urban1.jpeg";
+import urban2 from "../assets/img/urban2.jpeg";
+import urban3 from "../assets/img/urban3.jpeg";
 
 export default () => {
-  test();
   const [isContributor, setIsContributor] = useState(null);
   const [userValue, setUserValue] = useState("");
   const [userObject, setUserObject] = useState({});
   const [submitButtonClicked, setSubmitButtonClicked] = useState(false);
+  const randomPhoto = getRandomPhoto();
+  const [photo] = useState(randomPhoto); // don't allow photo to change
 
   return (
     <>
@@ -23,7 +25,7 @@ export default () => {
       <Jumbotron
         style={{
           backgroundSize: "cover",
-          backgroundImage: `linear-gradient(to top, rgba(255,255,255,0.2), rgba(255,255,255,0.7)), url(${fly})`,
+          backgroundImage: `linear-gradient(to top, rgba(255,255,255,0.2), rgba(255,255,255,0.7)), url(${photo})`,
         }}
       >
         <Container>
@@ -98,3 +100,9 @@ export default () => {
     </>
   );
 };
+
+function getRandomPhoto() {
+  const photos = [fly, urban1, urban2, urban3];
+  const index = Math.floor(Math.random() * photos.length);
+  return photos[index];
+}

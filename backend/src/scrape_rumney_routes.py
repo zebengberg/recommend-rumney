@@ -147,7 +147,7 @@ def build_ratings_dataframe():
   logger.info('Scraped %s route-user-rating records from MP.', len(rows))
   df = pd.DataFrame(rows)
   df.to_csv(DATA_PATH, index=False)
-  logger.info('Data written to: %s \n\n', DATA_PATH.split('/')[-1])
+  logger.info('Data written to: %s', DATA_PATH.split('/')[-1])
 
 
 def build_route_data_json():

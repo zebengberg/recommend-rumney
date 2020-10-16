@@ -101,13 +101,13 @@ function Table({ columns, data }) {
 }
 
 export default (props) => {
-  // TODO: consider using useMemo?
   const columns = [
     {
       Header: "Route",
       accessor: "route",
       Cell: ({ row }) => <a href={row.original.url}> {row.values.route} </a>,
     },
+    { Header: "Grade", accessor: "grade" },
     {
       Header: "Average MP rating",
       accessor: "avg_rating",
@@ -138,7 +138,6 @@ export default (props) => {
       sortDescFirst: true,
       sortMethod: (a, b) => Number(a) - Number(b),
     },
-    { Header: "Grade", accessor: "grade" },
   ];
   const data = props.data; // useMemo?
 

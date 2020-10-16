@@ -60,6 +60,7 @@ const LoadingButtonText = (props) => {
           to={{
             pathname: "/recommendation",
             recommendations: recommendations,
+            preferences: props.ratingsObject,
           }}
         />
       )}

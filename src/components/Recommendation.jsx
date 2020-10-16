@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Container, Alert } from "react-bootstrap";
+import { Container, Alert, ToggleButton } from "react-bootstrap";
 import Jumbotron from "react-bootstrap/Jumbotron";
 import Link from "react-router-dom/Link";
 import NavBar from "./NavBar";
@@ -11,18 +11,23 @@ export default (props) => {
   const [lower, setLower] = useState(0);
   const [upper, setUpper] = useState(gradeList.length - 1);
   const recommendations = props.location.recommendations;
+  const preferences = props.location.preferences;
   const [filteredRecs, setFilteredRecs] = useState(recommendations);
+  const [checked, setChecked] = useState(true);
 
   useEffect(() => {
     if (recommendations !== undefined) {
       setFilteredRecs(
         recommendations.filter((route) => {
+          if (!checked && route.route in preferences) {
+            return false;
+          }
           const grade = gradeToNumber(route.grade);
           return grade <= upper && grade >= lower;
         })
       );
     }
-  }, [lower, upper, recommendations]);
+  }, [lower, upper, checked, recommendations, preferences]);
 
   return (
     <>
@@ -54,6 +59,16 @@ export default (props) => {
               upper={upper}
               setUpper={setUpper}
             />
+            <ToggleButton
+              type="checkbox"
+              variant="info"
+              size="sm"
+              checked={checked}
+              onChange={(e) => setChecked(e.currentTarget.checked)}
+            >
+              Include your preferences in the results below?
+            </ToggleButton>
+
             <SortableTable data={filteredRecs.slice(0, 50)} />
           </>
         )}

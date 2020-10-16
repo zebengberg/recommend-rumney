@@ -1,6 +1,6 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "534fb2246ae79d1bb3e66ecfb4d5c8c7",
+    "revision": "c4183404f688fc88144068d3f9e7b265",
     "url": "/recommend-rumney/index.html"
   },
   {
@@ -16,8 +16,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/recommend-rumney/static/js/2.6ad32c50.chunk.js.LICENSE.txt"
   },
   {
-    "revision": "5f4e849b1164724675fd",
-    "url": "/recommend-rumney/static/js/main.7d1d0262.chunk.js"
+    "revision": "f9b033be7ba25d5e569c",
+    "url": "/recommend-rumney/static/js/main.1241de51.chunk.js"
   },
   {
     "revision": "dd0616c52f637b8b5362",

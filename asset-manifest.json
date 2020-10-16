@@ -1,14 +1,14 @@
 {
   "files": {
-    "main.js": "/recommend-rumney/static/js/main.7d1d0262.chunk.js",
-    "main.js.map": "/recommend-rumney/static/js/main.7d1d0262.chunk.js.map",
+    "main.js": "/recommend-rumney/static/js/main.1241de51.chunk.js",
+    "main.js.map": "/recommend-rumney/static/js/main.1241de51.chunk.js.map",
     "runtime-main.js": "/recommend-rumney/static/js/runtime-main.8b1955d8.js",
     "runtime-main.js.map": "/recommend-rumney/static/js/runtime-main.8b1955d8.js.map",
     "static/css/2.de8890bb.chunk.css": "/recommend-rumney/static/css/2.de8890bb.chunk.css",
     "static/js/2.6ad32c50.chunk.js": "/recommend-rumney/static/js/2.6ad32c50.chunk.js",
     "static/js/2.6ad32c50.chunk.js.map": "/recommend-rumney/static/js/2.6ad32c50.chunk.js.map",
     "index.html": "/recommend-rumney/index.html",
-    "precache-manifest.97c7e2183775d85d0f7a3c67c32b4bfa.js": "/recommend-rumney/precache-manifest.97c7e2183775d85d0f7a3c67c32b4bfa.js",
+    "precache-manifest.dde1cfa679b9abdead2fd993863332ce.js": "/recommend-rumney/precache-manifest.dde1cfa679b9abdead2fd993863332ce.js",
     "service-worker.js": "/recommend-rumney/service-worker.js",
     "static/css/2.de8890bb.chunk.css.map": "/recommend-rumney/static/css/2.de8890bb.chunk.css.map",
     "static/js/2.6ad32c50.chunk.js.LICENSE.txt": "/recommend-rumney/static/js/2.6ad32c50.chunk.js.LICENSE.txt",
@@ -22,6 +22,6 @@
     "static/js/runtime-main.8b1955d8.js",
     "static/css/2.de8890bb.chunk.css",
     "static/js/2.6ad32c50.chunk.js",
-    "static/js/main.7d1d0262.chunk.js"
+    "static/js/main.1241de51.chunk.js"
   ]
 }

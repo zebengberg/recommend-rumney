@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/recommend-rumney/precache-manifest.ecb040b9381eb033962554c3719a11e4.js"
+  "/recommend-rumney/precache-manifest.97c7e2183775d85d0f7a3c67c32b4bfa.js"
 );
 
 self.addEventListener('message', (event) => {

@@ -1,23 +1,27 @@
 {
   "files": {
-    "main.js": "/recommend-rumney/static/js/main.531e0824.chunk.js",
-    "main.js.map": "/recommend-rumney/static/js/main.531e0824.chunk.js.map",
+    "main.js": "/recommend-rumney/static/js/main.7d1d0262.chunk.js",
+    "main.js.map": "/recommend-rumney/static/js/main.7d1d0262.chunk.js.map",
     "runtime-main.js": "/recommend-rumney/static/js/runtime-main.8b1955d8.js",
     "runtime-main.js.map": "/recommend-rumney/static/js/runtime-main.8b1955d8.js.map",
     "static/css/2.de8890bb.chunk.css": "/recommend-rumney/static/css/2.de8890bb.chunk.css",
-    "static/js/2.c519a114.chunk.js": "/recommend-rumney/static/js/2.c519a114.chunk.js",
-    "static/js/2.c519a114.chunk.js.map": "/recommend-rumney/static/js/2.c519a114.chunk.js.map",
+    "static/js/2.6ad32c50.chunk.js": "/recommend-rumney/static/js/2.6ad32c50.chunk.js",
+    "static/js/2.6ad32c50.chunk.js.map": "/recommend-rumney/static/js/2.6ad32c50.chunk.js.map",
     "index.html": "/recommend-rumney/index.html",
-    "precache-manifest.ecb040b9381eb033962554c3719a11e4.js": "/recommend-rumney/precache-manifest.ecb040b9381eb033962554c3719a11e4.js",
+    "precache-manifest.97c7e2183775d85d0f7a3c67c32b4bfa.js": "/recommend-rumney/precache-manifest.97c7e2183775d85d0f7a3c67c32b4bfa.js",
     "service-worker.js": "/recommend-rumney/service-worker.js",
     "static/css/2.de8890bb.chunk.css.map": "/recommend-rumney/static/css/2.de8890bb.chunk.css.map",
-    "static/js/2.c519a114.chunk.js.LICENSE.txt": "/recommend-rumney/static/js/2.c519a114.chunk.js.LICENSE.txt",
-    "static/media/fly.jpg": "/recommend-rumney/static/media/fly.000c2b74.jpg"
+    "static/js/2.6ad32c50.chunk.js.LICENSE.txt": "/recommend-rumney/static/js/2.6ad32c50.chunk.js.LICENSE.txt",
+    "static/media/fly.jpg": "/recommend-rumney/static/media/fly.000c2b74.jpg",
+    "static/media/logo.png": "/recommend-rumney/static/media/logo.9ec8270e.png",
+    "static/media/urban1.jpeg": "/recommend-rumney/static/media/urban1.9ec8379c.jpeg",
+    "static/media/urban2.jpeg": "/recommend-rumney/static/media/urban2.5d2b855f.jpeg",
+    "static/media/urban3.jpeg": "/recommend-rumney/static/media/urban3.44246f28.jpeg"
   },
   "entrypoints": [
     "static/js/runtime-main.8b1955d8.js",
     "static/css/2.de8890bb.chunk.css",
-    "static/js/2.c519a114.chunk.js",
-    "static/js/main.531e0824.chunk.js"
+    "static/js/2.6ad32c50.chunk.js",
+    "static/js/main.7d1d0262.chunk.js"
   ]
 }

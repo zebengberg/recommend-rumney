@@ -5,10 +5,10 @@ from tqdm import tqdm
 from sklearn.linear_model import LinearRegression
 from surprise import AlgoBase, BaselineOnly, Dataset, Reader, PredictionImpossible, SlopeOne
 from surprise.model_selection import cross_validate
-from scrape_rumney_routes import stars_file_path
+from scrape_rumney_routes import DATA_PATH
 
-df = pd.read_csv(stars_file_path)
-df = df[['user', 'route', 'star']]
+df = pd.read_csv(DATA_PATH)
+
 reader = Reader(rating_scale=(1, 4))
 data = Dataset.load_from_df(df, reader)
 # use this one later

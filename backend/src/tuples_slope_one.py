@@ -4,11 +4,11 @@ import pandas as pd
 from tqdm import tqdm
 from surprise import AlgoBase, BaselineOnly, Dataset, Reader, PredictionImpossible, SlopeOne
 from surprise.model_selection import cross_validate
-from scrape_rumney_routes import stars_file_path
+from scrape_rumney_routes import DATA_PATH
 
-df = pd.read_csv(stars_file_path)
-df = df[['user', 'route', 'star']]
-reader = Reader(rating_scale=(1, 4))
+df = pd.read_csv(DATA_PATH)
+
+reader = Reader(rating_scale=(0, 4))
 data = Dataset.load_from_df(df, reader)
 # use this one later
 # data = Dataset.load_builtin('ml-100k')
@@ -16,7 +16,6 @@ data = Dataset.load_from_df(df, reader)
 
 
 class TuplesSlopeOne(AlgoBase):
-
   def __init__(self, dim=1, weight_predictions=False, minimum_threshold=0):
     AlgoBase.__init__(self)
     self.dim = dim

@@ -5,11 +5,13 @@ import pandas as pd
 from scrape_rumney_routes import DATA_PATH
 
 df = pd.read_csv(DATA_PATH)
+# need to increment all ratings to avoid division by zero error in NMF
+df['rating'] += 1
 
 
 def tests():
   """Test built-in surprise algorithms."""
-  reader = surprise.Reader(rating_scale=(0, 4))
+  reader = surprise.Reader(rating_scale=(1, 5))
   dataset = surprise.Dataset.load_from_df(df, reader)
   algorithms = [surprise.NormalPredictor(),
                 surprise.BaselineOnly(verbose=False),

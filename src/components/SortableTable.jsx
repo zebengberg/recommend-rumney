@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useTable, useSortBy, useBlockLayout } from "react-table";
 import styled from "styled-components";
 
@@ -55,6 +55,7 @@ function Table({ columns, data }) {
     useSortBy,
     useBlockLayout
   );
+  console.log(headerGroups);
 
   return (
     <>
@@ -68,6 +69,7 @@ function Table({ columns, data }) {
                 <th {...column.getHeaderProps(column.getSortByToggleProps())}>
                   {column.render("Header")}
                   {/* Add a sort direction indicator */}
+                  {console.log("here")}
                   <span>
                     {column.isSorted
                       ? column.isSortedDesc

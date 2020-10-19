@@ -1,10 +1,9 @@
 """Deal with MP redacted routes."""
+# pylint: disable=import-error
 
 import json
 import pandas as pd
-
-# redundant with scrape_rumney_routes; avoiding circular import
-URLS_PATH = '../data/rumney_urls.csv'
+from rumney.definitions import URLS_PATH
 
 
 def build_redacteds():

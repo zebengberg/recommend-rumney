@@ -109,10 +109,6 @@ def build_slope_one_data():
     json.dump(deviations, f)
 
 
-def build_pairs_regressor():
-  """Build regressor parameters for triples (r1, r2) -> r3 of routes."""
-
-
 if __name__ == '__main__':
   build_route_data()
   build_user_data()

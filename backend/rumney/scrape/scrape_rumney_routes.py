@@ -8,13 +8,9 @@ import requests
 import pandas as pd
 from lxml import html
 from tqdm import tqdm
+from ..definitions import URLS_PATH, DATA_PATH, TEXT_PATH, LOG_PATH
 from redacted import strip_id
 
-
-URLS_PATH = '../data/rumney_urls.csv'
-DATA_PATH = '../data/rumney_data.csv'
-ROUTE_DATA_PATH = '../data/rumney_route_data.json'
-LOG_PATH = '../data/scrape_history.log'
 
 with open('redacted_fixes.json') as file:
   fixes = json.load(file)
@@ -34,7 +30,7 @@ def download_route_urls():
   # use local cached csv if one exists
   if path.exists(URLS_PATH):
     print('Using cached version of URL data.')
-    print(f'Delete {URLS_PATH} to download new data.')
+    print(f'Remove {URLS_PATH} to download new data.')
 
   else:
     # url taken from MP route-finder feature
@@ -150,7 +146,7 @@ def build_ratings_dataframe():
   logger.info('Data written to: %s', DATA_PATH.split('/')[-1])
 
 
-def build_route_data_json():
+def build_text_data_json():
   """Save json file holding URL, grade, and text data for each route."""
   print('Scraping route descriptions and comments.')
 
@@ -167,13 +163,14 @@ def build_route_data_json():
     d[route] = {'url': url, 'grade': grade, 'text': text}
 
   logger.info('Scraped %s comments from MP.', total_n_comments)
-  with open(ROUTE_DATA_PATH, 'w') as f:
+  with open(TEXT_PATH, 'w') as f:
     json.dump(d, f)
-  logger.info('Metadata written to: %s \n\n', ROUTE_DATA_PATH.split('/')[-1])
+  logger.info('Metadata written to: %s \n\n', TEXT_PATH.split('/')[-1])
 
 
-if __name__ == '__main__':
+def main():
+  """Run all scraping methods."""
   download_route_urls()
   build_ratings_dataframe()
-  build_route_data_json()
+  build_text_data_json()
   logging.shutdown()

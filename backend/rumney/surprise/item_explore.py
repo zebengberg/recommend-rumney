@@ -1,4 +1,4 @@
-"""A module for investigating item-based recommendations."""
+"""A module for investigating item-based associations."""
 
 from random import sample
 import pandas as pd
@@ -54,7 +54,7 @@ def print_triple_associations():
     print('')
 
 
-def print_mean(*routes):
+def print_mean(*routes, threshold=5):
   """Print mean of image of map (r1, r2, ..., r_n-1) -> r_n."""
   grouped = df.groupby(by='route')
   groups = [grouped.get_group(route) for route in routes]
@@ -66,14 +66,30 @@ def print_mean(*routes):
     ratings = [g[g['user'] == u]['rating'].iloc[0] for g in groups]
     freqs[tuple(ratings)] += 1
 
-  means = freqs.dot(np.array(range(5))) / freqs.sum(axis=-1)
+  totals = freqs.sum(axis=-1)
+  # masking bins with few datapoints
+  mask = totals >= threshold
+  mask = mask.astype(int)
+
+  means = freqs.dot(np.array(range(5))) / totals
+  means = np.nan_to_num(means * mask)  # nan -> 0
   print(means.round(2))
+
+
+def print_pair_means():
+  """Print association mean for pair of popular routes."""
+  routes = most_rated(50)
+  for _ in range(50):
+    r1, r2 = random_combination(routes, 2)
+    print(r1, r2)
+    print_mean(r1, r2)
+    print('')
 
 
 def print_triple_means():
   """Print association mean for triples of popular routes."""
-  routes = most_rated(30)
-  for _ in range(10):
+  routes = most_rated(50)
+  for _ in range(50):
     r1, r2, r3 = random_combination(routes, 3)
     print(r1, r2, r3)
     print_mean(r1, r2, r3)
@@ -83,4 +99,5 @@ def print_triple_means():
 if __name__ == '__main__':
   print_pair_associations()
   print_triple_associations()
+  print_pair_means()
   print_triple_means()

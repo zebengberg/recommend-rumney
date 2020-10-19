@@ -1,3 +1,7 @@
+"""An attempt at an item-based higher dimensional version of the slope one
+algorithm. We consider linear regression approximation to the map
+(item1, item2, ...) -> item3."""
+
 from itertools import combinations
 import numpy as np
 import pandas as pd
@@ -7,19 +11,16 @@ from surprise.model_selection import cross_validate
 from scrape_rumney_routes import DATA_PATH
 
 df = pd.read_csv(DATA_PATH)
-
 reader = Reader(rating_scale=(0, 4))
-data = Dataset.load_from_df(df, reader)
-# use this one later
-# data = Dataset.load_builtin('ml-100k')
-# data = Dataset.load_builtin('ml-1m')
+# need to specify columns in this order
+# https://surprise.readthedocs.io/en/stable/getting_started.html#load-from-df-example
+data = Dataset.load_from_df(df[['user', 'route', 'rating']], reader)
 
 
 class TuplesSlopeOne(AlgoBase):
-  def __init__(self, dim=1, weight_predictions=False, minimum_threshold=0):
+  def __init__(self, dim=1, minimum_threshold=0):
     AlgoBase.__init__(self)
     self.dim = dim
-    self.weight_predictions = weight_predictions
     self.minimum_threshold = minimum_threshold
     self.freq = None
     self.dev = None
@@ -42,13 +43,6 @@ class TuplesSlopeOne(AlgoBase):
           output_rating = output[1]
           freq[index] += 1
           dev[index] += input_rating - output_rating
-
-    # cython stuff to try?!?
-    # # Number of users having rated items i and j: |U_ij|
-    # cdef np.ndarray[np.int_t, ndim = 2] freq
-    # # Deviation from item i to item j: mean(r_ui - r_uj for u in U_ij)
-    # cdef np.ndarray[np.double_t, ndim = 2] dev
-    # cdef int u, i, j, r_ui, r_uj
 
     combos = combinations(range(n_items), self.dim + 1)
     for combo in combos:
@@ -86,7 +80,8 @@ class TuplesSlopeOne(AlgoBase):
     return user_mean
 
 
-algos = [TuplesSlopeOne(dim=2), BaselineOnly(), SlopeOne()]
+algos = [TuplesSlopeOne(dim=2, minimum_threshold=5),
+         BaselineOnly(), SlopeOne()]
 for algo in algos:
   print('#' * 80 + '\n' * 2 + algo.__class__.__name__)
   cross_validate(algo, data, verbose=True)

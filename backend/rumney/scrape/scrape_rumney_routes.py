@@ -8,7 +8,8 @@ import requests
 import pandas as pd
 from lxml import html
 from tqdm import tqdm
-from ..definitions import URLS_PATH, DATA_PATH, TEXT_PATH, LOG_PATH
+# pylint: disable=import-error
+from rumney.definitions import URLS_PATH, DATA_PATH, TEXT_PATH, LOG_PATH
 from redacted import strip_id
 
 
@@ -116,7 +117,7 @@ def process_url_csv():
   def fix_row(row):
     if row['Route'] == 'Redacted':
       route_id = strip_id(row['URL'])
-      return fixes[route_id]
+      return fixes[route_id]  # will raise error if fixes doesn't contain id
     return row['Route']
   url_df['Route'] = url_df.apply(fix_row, axis=1)
 
@@ -168,7 +169,7 @@ def build_text_data_json():
   logger.info('Metadata written to: %s \n\n', TEXT_PATH.split('/')[-1])
 
 
-def main():
+def main_scrape():
   """Run all scraping methods."""
   download_route_urls()
   build_ratings_dataframe()

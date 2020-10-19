@@ -3,7 +3,8 @@
 from random import sample
 import pandas as pd
 import numpy as np
-from scrape_rumney_routes import DATA_PATH
+# pylint: disable=import-error
+from rumney.definitions import DATA_PATH
 
 df = pd.read_csv(DATA_PATH)
 

@@ -1,8 +1,8 @@
 """Deal with MP redacted routes."""
-# pylint: disable=import-error
 
 import json
 import pandas as pd
+# pylint: disable=import-error
 from rumney.definitions import URLS_PATH
 
 

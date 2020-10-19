@@ -6,7 +6,8 @@ from surprise import AlgoBase, BaselineOnly, Dataset, Reader, PredictionImpossib
 from tqdm import tqdm
 import pandas as pd
 import numpy as np
-from ..scrape_rumney_routes import DATA_PATH
+# pylint: disable=import-error
+from rumney.definitions import DATA_PATH
 
 df = pd.read_csv(DATA_PATH)
 reader = Reader(rating_scale=(0, 4))
@@ -16,7 +17,7 @@ data = Dataset.load_from_df(df[['user', 'route', 'rating']], reader)
 
 
 class PairMean(AlgoBase):
-  """Use means of image of map route1 -> route2 to predict."""
+  """Item-based filtering with means of image of map route1 -> route2."""
 
   def __init__(self, minimum_threshold=3, weighting=None):
     AlgoBase.__init__(self)

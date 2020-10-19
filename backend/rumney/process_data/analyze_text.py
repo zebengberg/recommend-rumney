@@ -3,10 +3,11 @@ functions for exploring and understanding the MPT text data."""
 
 import json
 from collections import defaultdict
-from scrape_rumney_routes import ROUTE_DATA_PATH
+# pylint: disable=import-error
+from rumney.definitions import TEXT_PATH
 
 
-with open(ROUTE_DATA_PATH) as f:
+with open(TEXT_PATH) as f:
   data = json.load(f)
 
 with open('handcrafted_words.txt') as f:

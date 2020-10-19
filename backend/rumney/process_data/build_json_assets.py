@@ -6,16 +6,11 @@ import json
 from collections import defaultdict
 import pandas as pd
 from tqdm import tqdm
-from scrape_rumney_routes import DATA_PATH
 from analyze_text import extract_climbing_words
 from content_based import calculate_content_similarities
-
-
-ROUTE_DATA_PATH = '../../src/assets/data/route_data_array.json'
-USER_DATA_PATH = '../../src/assets/data/user_data_array.json'
-USER_RATING_PATH = '../../src/assets/data/user_rating_object.json'
-SLOPE_ONE_PATH = '../../src/assets/data/slope_one_object.json'
-CONTENT_SIMILARITIES_PATH = '../../src/assets/data/content_similarities_object.json'
+# pylint: disable=import-error
+from rumney.definitions import DATA_PATH, ROUTE_DATA_PATH, USER_DATA_PATH, \
+    USER_RATING_PATH, SLOPE_ONE_PATH, CONTENT_PATH
 
 
 df = pd.read_csv(DATA_PATH)
@@ -75,7 +70,7 @@ def build_user_ratings_data():
 def build_content_similarities():
   """Export content similarities to file."""
   print('Building content similarities data ...')
-  with open(CONTENT_SIMILARITIES_PATH, 'w') as f:
+  with open(CONTENT_PATH, 'w') as f:
     json.dump(calculate_content_similarities(), f)
 
 
@@ -109,7 +104,8 @@ def build_slope_one_data():
     json.dump(deviations, f)
 
 
-if __name__ == '__main__':
+def main_build():
+  """Run all data building methods."""
   build_route_data()
   build_user_data()
   build_user_ratings_data()

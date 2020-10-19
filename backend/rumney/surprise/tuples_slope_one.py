@@ -8,7 +8,8 @@ import pandas as pd
 from tqdm import tqdm
 from surprise import AlgoBase, BaselineOnly, Dataset, Reader, PredictionImpossible, SlopeOne
 from surprise.model_selection import cross_validate
-from scrape_rumney_routes import DATA_PATH
+# pylint: disable=import-error
+from rumney.definitions import DATA_PATH
 
 df = pd.read_csv(DATA_PATH)
 reader = Reader(rating_scale=(0, 4))
@@ -18,6 +19,8 @@ data = Dataset.load_from_df(df[['user', 'route', 'rating']], reader)
 
 
 class TuplesSlopeOne(AlgoBase):
+  """Higher dimensional slope one item-based filtering."""
+
   def __init__(self, dim=1, minimum_threshold=0):
     AlgoBase.__init__(self)
     self.dim = dim
@@ -80,8 +83,9 @@ class TuplesSlopeOne(AlgoBase):
     return user_mean
 
 
-algos = [TuplesSlopeOne(dim=2, minimum_threshold=5),
-         BaselineOnly(), SlopeOne()]
-for algo in algos:
-  print('#' * 80 + '\n' * 2 + algo.__class__.__name__)
-  cross_validate(algo, data, verbose=True)
+if __name__ == '__main__':
+  algos = [TuplesSlopeOne(dim=2, minimum_threshold=5),
+           BaselineOnly(), SlopeOne()]
+  for algo in algos:
+    print('#' * 80 + '\n' * 2 + algo.__class__.__name__)
+    cross_validate(algo, data, verbose=True)
